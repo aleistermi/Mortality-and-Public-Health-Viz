@@ -25,10 +25,7 @@ dataset_paths<- list('defunciones_base_datos_2017_dbf','defunciones_base_datos_2
                             'defunciones_base_datos_1999_dbf', 'defunciones_base_datos_1998_dbf','defunciones_base_datos_1997_dbf','defunciones_base_datos_1996_dbf', 
                            'defunciones_base_datos_1995_dbf', 'defunciones_base_datos_1994_dbf','defunciones_base_datos_1993_dbf','defunciones_base_datos_1992_dbf', 
                            'defunciones_base_datos_1991_dbf','defunciones_base_datos_1990_dbf')
-# dataset_paths_90_97<- list('defunciones_base_datos_1997_dbf','defunciones_base_datos_1996_dbf', 
-#                            'defunciones_base_datos_1995_dbf', 'defunciones_base_datos_1994_dbf',
-#                            'defunciones_base_datos_1993_dbf','defunciones_base_datos_1992_dbf', 
-#                            'defunciones_base_datos_1991_dbf','defunciones_base_datos_1990_dbf')
+
 
 dataset_names<- list('DEFUN17.dbf', 'DEFUN16.dbf', 'DEFUN15.DBF', 'DEFUN14.dbf', 'DEFUN13.DBF', 'DEFUN12.dbf',
                      'DEFUN11.dbf', 'DEFUN10.dbf', 'DEFUN09.dbf', 'DEFUN08.dbf', 'DEFUN07.dbf', 'DEFUN06.dbf', 'DEFUN05.dbf',
@@ -54,36 +51,44 @@ i<-1
                             #  backup<-data_element
                             #####
                             ## LOCATION RECODE ##
+                            #First I need to make variables as character, otherwise R reads the factors as numbers. What a pain.
+                            data_element$municipality_ocur<- as.character(data_element$MUN_OCURR)
+                            data_element$municipality_regis<- as.character(data_element$MUN_REGIS)
+                            data_element$municipality_resid <- as.character(data_element$MUN_RESID)
+                            data_element$state_ocurrence<- as.character(data_element$ENT_OCURR)
+                            data_element$state_regis<- as.character(data_element$ENT_REGIS)
+                            data_element$state_resid <- as.character(data_element$ENT_RESID)                            
                             
-                            data_element$munici_regis<-ifelse(stri_length(data_element$MUN_REGIS)==2,
-                                                                paste("0", data_element$MUN_REGIS,sep=""), 
-                                                                ifelse(stri_length(data_element$MUN_REGIS)==1,
-                                                                       paste("00", data_element$MUN_REGIS, sep=""),data_element$MUN_REGIS))
-                            data_element$state_regis<-ifelse(stri_length(data_element$ENT_REGIS)==1,
-                                                              paste("0", data_element$ENT_REGIS,sep=""),
-                                                             data_element$ENT_REGIS)
+                            data_element$munici_regis<-ifelse(stri_length(data_element$municipality_regis)==2,
+                                                                paste("0", data_element$municipality_regis,sep=""), 
+                                                                ifelse(stri_length(data_element$municipality_regis)==1,
+                                                                       paste("00", data_element$municipality_regis, sep=""),
+                                                                       data_element$municipality_regis))
+                            data_element$state_registration<-ifelse(stri_length(data_element$state_regis)==1,
+                                                              paste("0", data_element$state_regis,sep=""),
+                                                             data_element$state_regis)
                             
-                            data_element$state_mun_CERT = paste(data_element$state_regis, data_element$munici_regis, sep="")
+                            data_element$state_mun_regis = paste(data_element$state_registration, data_element$munici_regis, sep="")
                             
-                            data_element$munici_ocur<-ifelse(stri_length(data_element$MUN_OCURR)==2,
-                                                              paste("0", data_element$MUN_OCURR,sep=""), 
-                                                              ifelse(stri_length(data_element$MUN_OCURR)==1,
-                                                                     paste("00", data_element$MUN_OCURR, sep=""),data_element$MUN_OCURR))
-                            data_element$state_ocur<-ifelse(stri_length(data_element$ENT_OCURR)==1,
-                                                            paste("0", data_element$ENT_OCURR,sep=""),
-                                                            data_element$ENT_OCURR) 
-                            data_element$state_mun_OCUR = paste(data_element$state_ocur, data_element$munici_ocur, sep="")
+                            data_element$munici_ocur<-ifelse(stri_length(data_element$municipality_ocur)==2,
+                                                              paste("0", data_element$municipality_ocur,sep=""), 
+                                                              ifelse(stri_length(data_element$municipality_ocur)==1,
+                                                                     paste("00", data_element$municipality_ocur, sep=""),data_element$municipality_ocur))
+                            data_element$state_ocur<-ifelse(stri_length(data_element$state_ocurrence)==1,
+                                                            paste("0", data_element$state_ocurrence,sep=""),
+                                                            data_element$state_ocurrence) 
+                            data_element$state_mun_OCUR = paste((data_element$state_ocur), (data_element$munici_ocur), sep="")
                             
 
                             
-                            data_element$state_address<-ifelse(stri_length(data_element$ENT_RESID)==1,
-                                                             paste("0", data_element$ENT_RESID,sep=""),
-                                                             data_element$ENT_RESID)
+                            data_element$state_address<-ifelse(stri_length(data_element$state_resid)==1,
+                                                             paste("0", data_element$state_resid,sep=""),
+                                                             data_element$state_resid)
                             
-                            data_element$munici_resid<-ifelse(stri_length(data_element$MUN_RESID)==2,
-                                                             paste("0", data_element$MUN_RESID,sep=""), 
-                                                             ifelse(stri_length(data_element$MUN_RESID)==1,
-                                                                    paste("00", data_element$MUN_RESID, sep=""),data_element$MUN_RESID))
+                            data_element$munici_resid<-ifelse(stri_length(data_element$municipality_resid)==2,
+                                                             paste("0", data_element$municipality_resid,sep=""), 
+                                                             ifelse(stri_length(data_element$municipality_resid)==1,
+                                                                    paste("00", data_element$municipality_resid, sep=""),data_element$municipality_resid))
                             
                             data_element$state_mun_address = paste(data_element$state_address, data_element$munici_resid, sep="")
                             ## SEX ##
@@ -115,14 +120,28 @@ i<-1
                             ##DATE##
                              ## DATE WHEN DEATH HAPPENED
                             data_element = data_element %>% 
-                              mutate(day_death = if_else( DIA_OCURR!="99", as.numeric(DIA_OCURR), NULL))
+                              mutate(day_death = if_else( DIA_OCURR!="99", as.integer(DIA_OCURR), NULL))
                             data_element = data_element %>% 
-                              mutate(month_death = if_else( MES_OCURR!="99", as.numeric(MES_OCURR), NULL))
+                              mutate(month_death = if_else( MES_OCURR!="99", as.integer(MES_OCURR), NULL))
                             data_element = data_element %>% 
-                              mutate(year_death = if_else( ANIO_OCUR!="99", as.numeric(ANIO_OCUR), NULL))
+                              mutate(year_death = if_else( ANIO_OCUR!="99", as.integer(ANIO_OCUR), NULL))
                             data_element = data_element %>%
-                              mutate(date_death = as.Date( paste( data_element$year_death, data_element$month_death ,
+                              mutate(date_death = as.Date(paste( data_element$year_death, data_element$month_death ,
                                                                   data_element$day_death ,  sep = "/") , format= "%m/%d/%Y"  ))
+                            
+                            data_element = data_element %>% 
+                              mutate(day_birth = if_else( DIA_NACIM!="99", as.numeric(DIA_NACIM), NULL))
+                            data_element = data_element %>% 
+                              mutate(month_birth = if_else( MES_NACIM!="99", as.numeric(MES_NACIM), NULL))
+                            data_element = data_element %>% 
+                              mutate(year_birth = if_else( ANIO_NACIM!="99", as.numeric(ANIO_NACIM), NULL))
+                            data_element = data_element %>% 
+                              mutate(dob = as.Date( paste(  
+                                data_element$month_birth , 
+                                data_element$day_birth , 
+                                data_element$year_birth,  sep = "/"), format= "%m/%d/%Y"
+                              ))
+                            
                             ## DATE WHEN DEATH WAS REGISTERED --> THIS VARIABLE DOES NOT EXIST FOR YEARS BEFORE 2001
                             if (as.numeric(str_sub(path,-6, end=-5))>2001){
                             data_element = data_element %>% 
@@ -523,34 +542,10 @@ i<-1
 ##CODE ENDS HERE ####
 write.csv(death_certificates, "all_deaths.csv")
 
-
-
-
- # else { path<-here("data", dataset_paths[i], dataset_names[i])
-   # print("*******")      
-   # print(path)
-   # i<-i+1}
-   # 
-   # }
-
-# i<-1
-# while (i<29) {
-#   if (i<21){
-#   path<-here("data", dataset_paths[i], dataset_names[i])
-#   print(path)
-#   #print(element)
-#   i<-i+1
-#             }
-#   else { path<-here("data", dataset_paths[i], dataset_names[i])
-#   print("*******")      
-#   print(path)
-#   i<-i+1}
-# 
-# }
-
-rm(CAPGPO, CATMINDE, data_element, dataset_names, dataset_names_90_97, dataset_names_98_17,dataset_paths, 
+rm(CAPGPO, CATMINDE,dataset_names_90_97, dataset_names_98_17,dataset_paths, 
    dataset_paths_90_97,dataset_names_98_17, DETALLADA, GPOLIMEX, LISTA1, LISTAMEX, lobasmin, mergetry, 
    unique_mun, unique_state)
+
 ############################## TESTING DATASETS WITH CODES #############################
 
 path<-here("data", 'defunciones_base_datos_2003_dbf', 'DEFUN03.dbf')
@@ -597,4 +592,4 @@ while (i<21) { (path<-here("data", dataset_paths_98_17[i], dataset_names_98_17[i
   print(as.numeric(str_sub(path,-6, end=-5))) 
   i<i+1
   }
-#rm(CAPGPO, CATMINDE, data_17, data_97, data_element,dataset_names, dataset_paths, dataset_names_90_97, dataset_names_98_17, dataset_paths_90_97, dataset_paths_98_17,DETALLADA, GPOLIMEX,LISTA1,LISTAMEX, mergetry)
+rm(CAPGPO, CATMINDE, data_17, data_97, data_element,dataset_names, dataset_paths, dataset_names_90_97, dataset_names_98_17, dataset_paths_90_97, dataset_paths_98_17,DETALLADA, GPOLIMEX,LISTA1,LISTAMEX, mergetry)
