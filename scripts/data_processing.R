@@ -91,6 +91,7 @@ i<-1
                                                                     paste("00", data_element$municipality_resid, sep=""),data_element$municipality_resid))
                             
                             data_element$state_mun_address = paste(data_element$state_address, data_element$munici_resid, sep="")
+                            
                             ## SEX ##
                             data_element$sex = data_element$SEXO
                             data_element$sex <- ifelse(data_element$sex==1,
@@ -114,6 +115,7 @@ i<-1
                             data_element = data_element %>% 
                               mutate(age_years = if_else( age_code1=="40" & EDAD!="4998", as.numeric(str_sub(data_element$EDAD, 2,)), NULL))
                             data_element<-select (data_element,-c(age_code1,age_code2))
+                            
                             # data_element$age_hours[data_element$age_code1=="10" & data_element$age_code2!="97" & data_element$age_code2!="98"]<- as.numeric(data_element$age_code2)
                             # data_element$age_minutes<-if_else(data_element$age_code1=="10" & data_element$age_code2==97,1,0,missing = NULL)
                             # data_element$age_days[data_element$age_code1=="20" & data_element$age_code2!="98"]<- (data_element$age_code2)
