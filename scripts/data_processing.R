@@ -1,4 +1,4 @@
-## Pre-processing data ##
+## Pre-processing data ####
 install.packages('here')
 install.packages("foreign")
 install.packages('utf8')
@@ -15,6 +15,8 @@ library(chron)
 library(dplyr)
 library(hms)
 library(car)
+
+## Data Cleaning ####
 # I create dataset paths and names. Later come back and create strings with a loop! Or a function...
 dataset_paths<- list('defunciones_base_datos_2017_dbf','defunciones_base_datos_2016_dbf', 'defunciones_base_datos_2015_dbf', 
                             'defunciones_base_datos_2014_dbf', 'defunciones_base_datos_2013_dbf', 'defunciones_base_datos_2012_dbf', 
@@ -145,13 +147,13 @@ i<-1
                               ))
                             
                             ## DATE WHEN DEATH WAS REGISTERED --> THIS VARIABLE DOES NOT EXIST FOR YEARS BEFORE 2001
-                            if (as.numeric(str_sub(path,-6, end=-5))>2001){
+                            if (as.int(str_sub(path,-6, end=-5))>2001){
                             data_element = data_element %>% 
-                              mutate(day_registered_death = if_else( DIA_REGIS!="99", as.numeric(DIA_REGIS), NULL))
+                              mutate(day_registered_death = if_else( DIA_REGIS!="99", as.integer(DIA_REGIS), NULL))
                             data_element = data_element %>% 
-                              mutate(month_registered_death = if_else( MES_REGIS!="99", as.numeric(MES_REGIS), NULL))
+                              mutate(month_registered_death = if_else( MES_REGIS!="99", as.integer(MES_REGIS), NULL))
                             data_element = data_element %>% 
-                              mutate(year_registered_death = if_else( ANIO_REGIS!="99", as.numeric(ANIO_REGIS), NULL))
+                              mutate(year_registered_death = if_else( ANIO_REGIS!="99", as.integer(ANIO_REGIS), NULL))
                             data_element = data_element %>% 
                               mutate(date_registered_death  = as.Date( paste(  
                                 data_element$month_registered_death , 
