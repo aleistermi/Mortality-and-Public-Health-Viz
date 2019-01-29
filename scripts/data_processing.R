@@ -162,11 +162,11 @@ i<-1
                             }
                             ## DATE OF BIRTH
                             data_element = data_element %>% 
-                              mutate(day_birth = if_else( DIA_NACIM!="99", as.numeric(DIA_NACIM), NULL))
+                              mutate(day_birth = if_else( DIA_NACIM!="99", as.integer(DIA_NACIM), NULL))
                             data_element = data_element %>% 
-                              mutate(month_birth = if_else( MES_NACIM!="99", as.numeric(MES_NACIM), NULL))
+                              mutate(month_birth = if_else( MES_NACIM!="99", as.integer(MES_NACIM), NULL))
                             data_element = data_element %>% 
-                              mutate(year_birth = if_else( ANIO_NACIM!="99", as.numeric(ANIO_NACIM), NULL))
+                              mutate(year_birth = if_else( ANIO_NACIM!="99", as.integer(ANIO_NACIM), NULL))
                             data_element = data_element %>% 
                                           mutate(dob = as.Date( paste(  
                                           data_element$month_birth , 
