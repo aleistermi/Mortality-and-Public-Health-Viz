@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(here)
 library(zoo)
-library(lubridate)
+#library(lubridate)
 library(dplyr)
 ```
 
@@ -24,100 +24,105 @@ print(path)
 data = load(path)
 ```
 ```{r, other data, include=FALSE}
-here()
-path = here("gini2010.RData")
-path
-load(path)
+# here()
+# path_gini10 = here::here("gini2010.RData")
+# load(path_gini10)
 # typeof(gini2010)
-file.exists(path)
-path = here("gini2015.RData")
-file.exists(path)
-gini2015 = load(path)
-path = here("irs.RData")
-file.exists(path)
-irs = load(path)
+# file.exists(path_gini10)
+# path_gini15 = here::here("gini2015.RData")
+# file.exists(path_gini15)
+# gini2015 = load(path_gini15)
+# pathiris = here::here("irs.RData")
+# file.exists(pathiris)
+# irs = load(pathiris)
+load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/gini2015.RData")
+load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/gini2010.RData")
+load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/irs.RData")
+
 ```
+
 ```{r, message=FALSE}
 ggplot(gini2010, aes(x=gini, y=income_ratio)) + geom_point()
+
 ```
+```{r}
+library(here)
+path = here::here("irs.RData")
+file.exists(path)
+irs = load(path)
+
+```
+
 
 
 ```{r, prepare data chart 1, include=FALSE}
-# death_certificates <- subset(death_certificates, year_death>1997 & year_death!=9999)
-# 
-# ## CREATE YEAR MONTH VAR ####
+
+death_certificates <- subset(death_certificates, year_death>1997 & year_death!=9999)
+## CREATE YEAR MONTH VAR ####
 death_certificates$yearmonth <- as.yearmon(paste(death_certificates$year_death, death_certificates$month_death), "%Y %m")
-# # DATAFRAME WITH AGGREGATION BY TYPE OF DEATH ####
-# death_certificates$yearmonth <- as.yearmon(paste(death_certificates$year_death, death_certificates$month_death), "%Y %m")
-# death_certificates$counter=1 # maybe this is not necessary but for now...
-# monthly_death_national <- death_certificates %>%
-#   group_by(yearmonth, non_natural_causes) %>%
-#   summarize(homicides = sum(counter[non_natural_causes=="homicide"]),
-#             suicides = sum(counter[non_natural_causes=="suicide"]),
-#             accidents = sum(counter[non_natural_causes=="accident"]),
-#             war = sum(counter[non_natural_causes=="war_operations"]),
-#             dn = sum(counter[non_natural_causes=="don't know"]))
+
 death_certificates <- death_certificates%>%
     mutate(non_natural_causes = if_else(is.na(non_natural_causes), "N.A/Natural Death", non_natural_causes))
 
 monthly_death_national <-
   death_certificates %>% 
-  group_by(yearmonth, non_natural_causes) %>% 
+  group_by(yearmonth, ANIO_OCUR, non_natural_causes) %>% 
   tally()
 print.data.frame(head(monthly_death_national))
 
 ```
 
-```{r, prepare data chart 1, include=FALSE}
-
-##CREATE DFS for each type of death ####
-total_deaths <- death_certificates %>%
-                group_by(yearmonth) %>%
-                summarize(total = sum(counter))
-homicides<-subset(monthly_death_national[c('yearmonth','homicides','non_natural_causes')],
-                  non_natural_causes=='homicide')[c('yearmonth', 'homicides')]
-suicides<-subset(monthly_death_national[c('yearmonth','suicides','non_natural_causes')],
-                 non_natural_causes=='suicide')[c('yearmonth', 'suicides')]
-accidents<-subset(monthly_death_national[c('yearmonth','accidents', 'non_natural_causes')],
-                  non_natural_causes=='accident')[c('yearmonth', 'accidents')]
-war<-subset(monthly_death_national[c('yearmonth','war','non_natural_causes')],
-            non_natural_causes=='war_operations')[c('yearmonth', 'war')]
-dn<-subset(monthly_death_national[c('yearmonth','dn','non_natural_causes')],
-           non_natural_causes=="don't know")[c('yearmonth', 'dn')]
-## MERGE THEM ####
-monthly_deaths<- merge(x=total_deaths, y = homicides, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
-monthly_deaths<-merge(x=total_deaths, suicides, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
-monthly_deaths<-merge(x=total_deaths, accidents, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
-monthly_deaths<-merge(x=total_deaths, war, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
-monthly_deaths<-merge(x=total_deaths, dn, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
-
-```
 
 ```{r, adding population, include=FALSE}
-monthly_deaths$year<-year(monthly_deaths$yearmonth)
+# library(lubridate)
+# monthly_death_national<- 
+#   monthly_death_national %>%
+#   mutate(year=year(yearmonth))
 
-## ADD POPULATION TO OBTAIN RATES
-total_deaths<-
-  total_deaths %>% mutate(pop_divide = case_when(year<=2002 ~ sum(as.numeric(irs$pop2000), na.rm = TRUE),
-                                          year>2002 & year<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
-                                          year>2008 & year<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
-                                          year>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
-total_deaths <- subset(total_deaths, year>1997 & year!=9999)
+## ADD POPULATION TO OBTAIN RATES 
+load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/gini2015.RData")
+load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/gini2010.RData")
+load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/irs.RData")
+monthly_death_national<-
+  monthly_death_national %>% mutate(pop_divide = case_when(ANIO_OCUR<=2002 ~ sum(as.numeric(irs$pop2000), na.rm = TRUE),
+                                          ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
+                                          ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
+                                          ANIO_OCUR>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
 mult<-100000
-
+monthly_death_national<-monthly_death_national %>% 
+                        mutate(death_rate=n/pop_divide*mult)
+                      
 ```
 
-```{r, final_manipulation, include=FALSE}
-total_deaths<-total_deaths %>% 
-  mutate(natural = if_else(year>=2004, total - suicides - homicides - accidents - war - dn, 
-                                     total - suicides - homicides - accidents - dn))
-  total_deaths<-total_deaths %>% 
-    mutate(natural_rate=natural/pop_divide*mult,
-           homicide_rate = homicides/pop_divide*mult,
-           suicide_rate = suicides/pop_divide*mult,
-           accident_rate = accidents/pop_divide*mult,
-           war_rate = war/pop_divide*mult,
-           dontknow_rate = dn/pop_divide*mult)
+```{r, final_manipulation}
+library(ggplot2)
+## Suicides ####
+suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Suicide")), aes(x=yearmonth, y=death_rate)) +
+  geom_line() +ylab('Monthly Rate') +
+  geom_line(col="blue", alpha=.6)  +
+  # stat_smooth(
+  #   color = "#FC4E07", alpha=.04,
+  #   method = "loess", se = FALSE) +
+  xlab("") +
+  theme_bw() +
+  theme(axis.title.y = element_text(size=12))
+suicide_plot
+
+## Homicides ####
+homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Suicide")), aes(x=yearmonth, y=death_rate)) +
+  geom_line() +ylab('Monthly Rate') +
+  geom_line(col="blue", alpha=.6)  +
+  # stat_smooth(
+  #   color = "#FC4E07", alpha=.04,
+  #   method = "loess", se = FALSE) +
+  geom_vline(xintercept =2006.917 , linetype="dotted", 
+                color = "red", size=1)+ 
+    geom_text(aes(x=2009.2, label="War on drugs starts", y=.20), colour="red") +
+
+  xlab("") +
+  theme_bw()+
+  theme(axis.title.y = element_text(size=12))
+homicide_plot
 ```
 
 
