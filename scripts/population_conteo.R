@@ -85,4 +85,10 @@ irs$irs05<-as.numeric(irs$irs05)
 irs$irs10<-as.numeric(irs$irs10) 
 irs$irs15<-as.numeric(irs$irs15) 
 
+save(irs, file="irs.RData")
+save(gini2010, file = "gini10.RData")
+save(gini2015, file = "gini15.RData")
+
+
+
                   
