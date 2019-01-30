@@ -1,12 +1,11 @@
 ## Pre-processing data ####
-install.packages('here')
 install.packages("foreign")
 install.packages('utf8')
 install.packages('gtools')
 install.packages('dplyr')
 install.packages('stringr')
 install.packages('chron')
-library(here)
+install.packages("here")
 library(foreign)
 library(utf8)
 library(gtools)
@@ -15,7 +14,9 @@ library(chron)
 library(dplyr)
 library(hms)
 library(car)
-
+library(stringi)
+library(anytime)
+library(here)
 ## Data Cleaning ####
 # I create dataset paths and names. Later come back and create strings with a loop! Or a function...
 dataset_paths<- list('defunciones_base_datos_2017_dbf','defunciones_base_datos_2016_dbf', 'defunciones_base_datos_2015_dbf', 
@@ -39,12 +40,13 @@ dataset_names<- list('DEFUN17.dbf', 'DEFUN16.dbf', 'DEFUN15.DBF', 'DEFUN14.dbf',
 #                            'DEFUN91.dbf','DEFUN90.dbf')
 
 death_certificates<- data.frame()
-path<-here("data", dataset_paths[1], "CAPGPO.dbf")
+path<-here::here("data", dataset_paths[1], "CAPGPO.dbf")
 CAPGPO<-read.dbf(path, as.is = FALSE)
+
 i<-1
 #for (element in list(1:19))
- while (i<21) {  ## PATHS TO CREATE DE DATAFRAME ##
-                            path<-here("data", dataset_paths[i], dataset_names[i])
+while (i<2) {  ## PATHS TO CREATE DE DATAFRAME ## 21
+                            path<-here::here("data", dataset_paths[i], dataset_names[i])
                             data_element<-read.dbf(path, as.is = FALSE)
                             data_element$year_dataset<- (as.numeric(str_sub(path,-6, end=-5)))
                             ######
@@ -129,11 +131,17 @@ i<-1
                               mutate(month_death = if_else( MES_OCURR!="99", as.integer(MES_OCURR), NULL))
                             data_element = data_element %>% 
                               mutate(year_death = if_else( ANIO_OCUR!="99", as.integer(ANIO_OCUR), NULL))
-                            data_element = data_element %>%
-                              mutate(date_death = as.Date(paste( data_element$year_death, data_element$month_death ,
-                                                                  data_element$day_death ,  sep = "/") , format= "%m/%d/%Y"  ))
+                            data_element$date_death <- as.Date(paste(data_element$year_death, data_element$month_death, data_element$day_death, sep="-"))
+                            # data_element$day_death<-as.character(data_element$day_death)
+                            #   data_element$month_death<-as.character(data_element$month_death)
+                            #   data_element$year_death<-as.character(data_element$year_death)
+                              # data_element = data_element %>%
+                              # mutate(date_death = as.Date(paste( data_element$year_death, data_element$month_death ,
+                              #                                     data_element$day_death ,  sep = "/") , format= "%m/%d/%Y"  ))
                             
-                            data_element = data_element %>% 
+                              #data_element$date_death <- paste(data_element$year_death, data_element$month_death, data_element$day_death, sep="-") %>% ymd() %>% as.Date()
+                              
+                              data_element = data_element %>% 
                               mutate(day_birth = if_else( DIA_NACIM!="99", as.numeric(DIA_NACIM), NULL))
                             data_element = data_element %>% 
                               mutate(month_birth = if_else( MES_NACIM!="99", as.numeric(MES_NACIM), NULL))
@@ -147,7 +155,7 @@ i<-1
                               ))
                             
                             ## DATE WHEN DEATH WAS REGISTERED --> THIS VARIABLE DOES NOT EXIST FOR YEARS BEFORE 2001
-                            if (as.int(str_sub(path,-6, end=-5))>2001){
+                            if (as.integer(str_sub(path,-6, end=-5))>2001){
                             data_element = data_element %>% 
                               mutate(day_registered_death = if_else( DIA_REGIS!="99", as.integer(DIA_REGIS), NULL))
                             data_element = data_element %>% 
@@ -535,15 +543,23 @@ i<-1
                             # data_element$mun_register = data_element$MUN_REGIS
                             # data_element$mun_living = data_element$MUN_RESID                            
                             #data_element <- merge(x = data_element, y = pop2010 , by = "state_mun_address")
-                            
+                            data_element$counter=1 #Final counter of deaths
+                            data_element %>% select (-c(data_element$GRUPO, data_element$ENT_REGIS, 
+                                                        data_element$MUN_REGIS, data_element$ENT_RESID,
+                                                        data_element$MUN_RESID, data_element$TLOC_RESID, 
+                                                        data_element$LOC_RESID, data_element$ENT_OCURR,
+                                                        data_element$MUN_OCURR, data_element$TLOC_OCURR,
+                                                        data_element$LOC_OCURR,data_element$LISTA_MEX,
+                                                        data_element$EDAD, data_element$ASIST_MEDI, 
+                                                        data_element$COND_CERT, data_element$EDAD_AGRU,
+                                                        data_element$COND_ACT, PAR_AGRE,data_element$DIS_RE_OAX))
                             i<-i+1
                             print(paste("The colnames for year data element", as.numeric(str_sub(path,-6, end=-5)), "are", list(colnames(data_element)), sep=" "))
                             print(paste("The colnames for death_certificates", as.numeric(str_sub(path,-6, end=-5)), "are", list(colnames(death_certificates)), sep=" "))
                             
                             death_certificates = smartbind(death_certificates, data_element)
                             print(path)}
-  
-##CODE ENDS HERE ####
+ ##CODE ENDS HERE ####
 write.csv(death_certificates, "all_deaths.csv")
 
 rm(CAPGPO, CATMINDE,dataset_names_90_97, dataset_names_98_17,dataset_paths, 
