@@ -567,6 +567,8 @@ write.csv(death_certificates, "all_deaths.csv")
 #    dataset_paths_90_97,dataset_names_98_17, DETALLADA, GPOLIMEX, LISTA1, LISTAMEX, lobasmin, mergetry, 
 #    unique_mun, unique_state)
 rm(CAPGPO, data_element, dataset_names,dataset_paths)
+path = here("/death_certificates.RData")
+data = load(path)
 
 ############################## TESTING DATASETS WITH CODES #############################
 
