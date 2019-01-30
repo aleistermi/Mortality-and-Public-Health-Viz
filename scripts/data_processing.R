@@ -45,7 +45,7 @@ CAPGPO<-read.dbf(path, as.is = FALSE)
 
 i<-1
 #for (element in list(1:19))
-while (i<2) {  ## PATHS TO CREATE DE DATAFRAME ## 21
+while (i<21) {  ## PATHS TO CREATE DE DATAFRAME ## 21
                             path<-here::here("data", dataset_paths[i], dataset_names[i])
                             data_element<-read.dbf(path, as.is = FALSE)
                             data_element$year_dataset<- (as.numeric(str_sub(path,-6, end=-5)))
@@ -552,7 +552,8 @@ while (i<2) {  ## PATHS TO CREATE DE DATAFRAME ## 21
                                                         data_element$LOC_OCURR,data_element$LISTA_MEX,
                                                         data_element$EDAD, data_element$ASIST_MEDI, 
                                                         data_element$COND_CERT, data_element$EDAD_AGRU,
-                                                        data_element$COND_ACT, PAR_AGRE,data_element$DIS_RE_OAX))
+                                                        data_element$COND_ACT, data_element$PAR_AGRE,
+                                                        data_element$DIS_RE_OAX))
                             i<-i+1
                             print(paste("The colnames for year data element", as.numeric(str_sub(path,-6, end=-5)), "are", list(colnames(data_element)), sep=" "))
                             print(paste("The colnames for death_certificates", as.numeric(str_sub(path,-6, end=-5)), "are", list(colnames(death_certificates)), sep=" "))
@@ -562,9 +563,10 @@ while (i<2) {  ## PATHS TO CREATE DE DATAFRAME ## 21
  ##CODE ENDS HERE ####
 write.csv(death_certificates, "all_deaths.csv")
 
-rm(CAPGPO, CATMINDE,dataset_names_90_97, dataset_names_98_17,dataset_paths, 
-   dataset_paths_90_97,dataset_names_98_17, DETALLADA, GPOLIMEX, LISTA1, LISTAMEX, lobasmin, mergetry, 
-   unique_mun, unique_state)
+# rm(CAPGPO, CATMINDE,dataset_names_90_97, dataset_names_98_17,dataset_paths, 
+#    dataset_paths_90_97,dataset_names_98_17, DETALLADA, GPOLIMEX, LISTA1, LISTAMEX, lobasmin, mergetry, 
+#    unique_mun, unique_state)
+rm(CAPGPO, data_element, dataset_names,dataset_paths)
 
 ############################## TESTING DATASETS WITH CODES #############################
 
