@@ -1,0 +1,78 @@
+---
+title: "Homework 2"
+author: "Aleister Montfort"
+date: "1/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(ggplot2)
+library(here)
+library(zoo)
+```
+
+```{r, load data}
+here()
+path = here("/death_certificates.RData")
+data = load(path)
+```
+
+```{r, prepare data chart 1, include=FALSE}
+## CREATE YEAR MONTH VAR ####
+death_certificates$yearmonth <- as.yearmon(paste(death_certificates$year_death, death_certificates$month_death), "%Y %m")
+## DATAFRAME WITH AGGREGATION BY TYPE OF DEATH ####
+monthly_death_national <- death_certificates %>%
+                          group_by(yearmonth, non_natural_causes) %>%
+                        summarize(homicides=sum(counter[which(non_natural_causes=="homicide"),]),
+                                  suicides = sum(counter[which(non_natural_causes=="suicide"),]),
+                              accidents = sum(counter[which,(non_natural_causes=="accident"),]),
+                              war = sum(counter[which,(non_natural_causes=="war_operations"),]),
+                              dn = sum(counter[non_natural_causes=="don't know"]))
+##CREATE DFS for each type of death ####
+total_deaths <- death_certificates %>%
+                group_by(yearmonth) %>%
+                summarize(total = sum(counter))
+homicides<-subset(monthly_death_national[c('yearmonth','homicides','non_natural_causes')],
+                  non_natural_causes=='homicide')[c('yearmonth', 'homicides')]
+suicides<-subset(monthly_death_national[c('yearmonth','suicides','non_natural_causes')],
+                 non_natural_causes=='suicide')[c('yearmonth', 'suicides')]
+accidents<-subset(monthly_death_national[c('yearmonth','accidents', 'non_natural_causes')],
+                  non_natural_causes=='accident')[c('yearmonth', 'accidents')]
+war<-subset(monthly_death_national[c('yearmonth','war','non_natural_causes')],
+            non_natural_causes=='war_operations')[c('yearmonth', 'war')]
+dn<-subset(monthly_death_national[c('yearmonth','dn','non_natural_causes')],
+           non_natural_causes=="don't know")[c('yearmonth', 'dn')]
+## MERGE THEM ####
+monthly_deaths<- merge(x=total_deaths, y = homicides, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
+monthly_deaths<-merge(x=total, suicides, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
+monthly_deaths<-merge(x=total, accidents, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
+monthly_deaths<-merge(x=total, war, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
+monthly_deaths<-merge(x=total, dn, by.x="yearmonth", by.y="yearmonth", all.x = TRUE)
+
+```
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r, graphs, warning=FALSE, message=FALSE, error=FALSE}
+print(de)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
