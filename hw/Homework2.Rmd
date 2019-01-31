@@ -70,6 +70,12 @@ monthly_death_national <-
   tally()
 print.data.frame(head(monthly_death_national))
 
+TOTAL_monthly_death_national <-
+  death_certificates %>% 
+  group_by(yearmonth, ANIO_OCUR) %>% 
+  tally()
+print.data.frame(head(TOTAL_monthly_death_national))
+
 ```
 
 
@@ -88,41 +94,163 @@ monthly_death_national<-
                                           ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
                                           ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
                                           ANIO_OCUR>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
+
+TOTAL_monthly_death_national<-
+  TOTAL_monthly_death_national %>% mutate(pop_divide = case_when(ANIO_OCUR<=2002 ~ sum(as.numeric(irs$pop2000), na.rm = TRUE),
+                                          ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
+                                          ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
+                                          ANIO_OCUR>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
+
 mult<-100000
 monthly_death_national<-monthly_death_national %>% 
                         mutate(death_rate=n/pop_divide*mult)
-                      
+TOTAL_monthly_death_national<-TOTAL_monthly_death_national %>% 
+                        mutate(death_rate=n/pop_divide*mult)                      
 ```
 
-```{r, final_manipulation}
+```{r, final_manipulation, message=FALSE}
 library(ggplot2)
+## TOTAL ####
+total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_rate)) +
+  geom_line()  +
+  geom_line(col="blue", alpha=.6)  +
+  stat_smooth(
+    color = "#FC4E07", alpha=.04,
+    method = "loess", se = FALSE) +
+      labs(title = "Monthly Mortality Rate in Mexico 1998-2017",
+       subtitle = "Total deaths rate trend shows is increasing, probably driven by the grow in the homicides-rate",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
+  geom_vline(xintercept =2006.917 , linetype="dotted", 
+                color = "red", size=1)+ 
+    geom_text(aes(x=2007.1, label="War on drugs starts", y=10), colour="red", hjust = 0) +
+  theme_bw() +
+  theme(axis.title.y = element_text(size=12))
+total_rate_plot
+```
+
+```{r, final_manipulation, message=FALSE}
+## NATURAL DEATHS ####
+natural_death_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("N.A/Natural Death")), aes(x=yearmonth, y=death_rate)) +
+  geom_line() +ylab('Monthly Rate') +
+  geom_line(col="blue", alpha=.6)  +
+   labs(title = "Natural Deaths Mortality Rate in Mexico 1998-2017",
+       subtitle = "Once we exclude non-natural causes, we observe that rates in deaths has also increased in Mexico",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
+  stat_smooth(
+    color = "#FC4E07", alpha=.02,
+    method = "loess", se = FALSE) +
+  xlab("") +
+  theme_bw()+
+  theme(axis.title.y = element_text(size=12))
+natural_death_plot
+```
+
+```{r, final_manipulation, message=FALSE}
+
 ## Suicides ####
 suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Suicide")), aes(x=yearmonth, y=death_rate)) +
-  geom_line() +ylab('Monthly Rate') +
+  geom_line()  +
   geom_line(col="blue", alpha=.6)  +
   # stat_smooth(
   #   color = "#FC4E07", alpha=.04,
   #   method = "loess", se = FALSE) +
-  xlab("") +
+ labs(title = "Suicides: Ramping up",
+       subtitle = "Suicides rate have increased in the last 20 years. On average, they have doubled, whereas in the rest of the world, the opposite trend persists",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_bw() +
   theme(axis.title.y = element_text(size=12))
 suicide_plot
+```
 
-## Homicides ####
-homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Suicide")), aes(x=yearmonth, y=death_rate)) +
-  geom_line() +ylab('Monthly Rate') +
+
+```{r, final_manipulation, message=FALSE}
+## Accidents ####
+max_acident<-max(monthly_death_national[monthly_death_national$non_natural_causes == "Accident",]$death_rate)
+accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Accident")), aes(x=yearmonth,y=death_rate))+
+  geom_line() +ylab('Accidents') +
   geom_line(col="blue", alpha=.6)  +
   # stat_smooth(
   #   color = "#FC4E07", alpha=.04,
   #   method = "loess", se = FALSE) +
+  labs(title = "Dwindling accidents",
+       subtitle = "Accident-related deaths show a smooth decrease in the last 20 years",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
+  geom_vline(xintercept =2001 , linetype="dotted", 
+                color = "red", size=1)+ 
+  geom_text(aes(x=2001.2, label="December 2000: maximum \nmonthly rate in 20 years (4.8)", y=2.5), colour="red", hjust = 0) +
+    #geom_text(aes(x=2003.9, label="Maximum monthly rate \n in 20 years: 4.8", y=3), colour="red") +
+  theme_bw()+
+  theme(axis.title.y = element_text(size=12))
+accidents_plot
+```
+
+```{r, final_manipulation, message=FALSE}
+## Homicides ####
+homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Homicide")), aes(x=yearmonth, y=death_rate)) +
+  geom_line() +ylab('Monthly Rate') +
+  geom_line(col="blue", alpha=.6)  +
+  # stat_smooth(
+  #   color = "#FC4E07", alpha=.04,
+  #   method = "loess", se = FALSE) + 
   geom_vline(xintercept =2006.917 , linetype="dotted", 
                 color = "red", size=1)+ 
-    geom_text(aes(x=2009.2, label="War on drugs starts", y=.20), colour="red") +
-
+    geom_text(aes(x=2007.0, label="War on drugs starts", y=.20), colour="red", hjust = 0) +
+labs(title = "Homicides rate: a trend that does not give up ",
+       subtitle = "After a substantive decrease between 2011 and 2015, homicides rate shows a sharp upward trend",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
   xlab("") +
   theme_bw()+
   theme(axis.title.y = element_text(size=12))
 homicide_plot
+```
+
+```{r, final_manipulation, message=FALSE}
+## WAR DEATHS #### jun 2010
+war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Operations") & ANIO_OCUR>2003), aes(x=yearmonth, y=death_rate)) +
+  geom_line() +ylab('Monthly Rate') +
+  geom_line(col="blue", alpha=.6)  +
+  stat_smooth(
+    color = "#FC4E07", alpha=.04,
+    method = "loess", se = FALSE) +
+  geom_vline(xintercept =2010.417, linetype="dotted", 
+                color = "red", size=1)+
+   geom_vline(xintercept =2015.083, linetype="dotted", 
+                color = "red", size=1)+ 
+  geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour="red") +
+    labs(title = "War-operations related deaths: the costs of decreasing the homicides rate?",
+       subtitle = "Deaths in this category show a greater variability and levels between 2011 and 2015, a coincident period with the temporal drop in homicides",
+       caption = "National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
+  theme_bw()
+war_plot
+```
+
+```{r, final_manipulation, message=FALSE}
+
+## DONT KNOW DEATHS####
+dn_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Don't know")), aes(x=yearmonth, y=death_rate)) +
+  geom_line() +ylab('Unknown') +
+  geom_line(col="blue", alpha=.6)  +
+  # stat_smooth(
+  #   color = "#FC4E07", alpha=.04,
+  #   method = "loess", se = FALSE) +
+ geom_text(aes(x=2012.8, label="Decrease in \n homicides", y=.1), colour="red") +
+  geom_vline(xintercept =2010.417, linetype="dotted", 
+                color = "red", size=1)+
+   geom_vline(xintercept =2015.083, linetype="dotted", 
+                color = "red", size=1)+
+    labs(title = "Deaths without classification: an increasing State's inability to produce vital stats",
+       subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing lack of State capacity to classify deaths",
+       caption = "National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)")  +
+  theme_bw()+
+  theme(axis.title.y = element_text(size=12))
+dn_plot
 ```
 
 
