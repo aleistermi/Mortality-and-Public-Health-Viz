@@ -267,7 +267,54 @@ print(de)
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+causes<- death_certificates %>% select(cause_of_death,sex,school_category, age_years)
+
+causes_male <- filter(causes, cause_of_death!= 'HOMICIDES' & cause_of_death!= 'WAR OPERATIONS' & cause_of_death!= 'OTHER ACCIDENT' & cause_of_death!= 'AIR, WATER, OTHER TRANSPORT ACC' & sex=="Male")
+
+
+causes_male = causes_male %>% 
+                              mutate(cause_of_death = if_else( 
+                                cause_of_death=='AFTERMATH' | 
+                                cause_of_death=='PERINATAL PERIOD ILLNESS' | 
+                                cause_of_death=='ABNORMAL CLINIC LAB' |
+                                cause_of_death=='MEDICAL ASSIST' | cause_of_death=='EYE ILLNESS'|
+                                cause_of_death=='DIGESTIVE SYSTEM', 'OTHER', cause_of_death))
+causes_male = causes_male %>% 
+                              mutate(cause_of_death = if_else( 
+                                cause_of_death=='DRUG_USE_LEGAL', 'LEGAL DRUG ABUSE', cause_of_death))
+causes_male = causes_male %>% 
+                              mutate(cause_of_death = if_else( 
+                                cause_of_death=='HIV', 'AIDS', cause_of_death))
+causes_male = causes_male %>% 
+                              mutate(cause_of_death = if_else( 
+                                cause_of_death=='CONGENITAL MALF', 'CONGENITAL MALFORMATIONS', cause_of_death))
+causes_male = causes_male %>% 
+                              mutate(cause_of_death = if_else( 
+                                cause_of_death=='OSTEOMUSCULAR CONJ', 'OSTEOMUSCULAR AND CONJUNCTIVE DISEASES', cause_of_death))
+
+
+causes_normalized_age_male<- causes_male %>% 
+  group_by(age_years, cause_of_death) %>% 
+  tally() %>% 
+group_by(age_years) %>% mutate(percent = n/sum(n)*100)
+
+causes_normalized_age_male$ordered_vars <- factor(causes_normalized_age_male$cause_of_death, levels=c("OTHER", 'CONGENITAL MALFORMATIONS',"GENITOURINARY","OSTEOMUSCULAR AND CONJUNCTIVE DISEASES","CIRCULATORY SYSTEM", "INFECTION NO HIV", "AIDS", "MENTAL ILLNESS", "LEGAL DRUG ABUSE" , "CANCER", "NERVOUS SYSTEM ILLNESS",  "RESPIRATORY SYSTEM", "SUICIDES" ))
+
+playing<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=ordered_vars)) + 
+    geom_area( size=1, color='black', show.legend = FALSE) 
+  
+# require(forcats)
+# cause_by_sex <- ggplot(causes, aes(fct_infreq(cause_of_death), colour=sex), decreasing=TRUE)
+# cause_by_sex + geom_bar( aes(fill=sex), width = 0.5,  stat='count', color = "grey40", alpha = .5) + 
+#   theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+#   coord_flip() +
+#   labs(subtitle="Cumulative cases 1998-2017", 
+#        caption="Source: INEGI") +
+# # theme(legend.position = "top")+
+#   xlab("Cause") + 
+#   ylab("Frequency")                 +
+#   theme(plot.title = element_text(hjust = 0.5))+
+#   ggtitle("Principal Causes of Death in Mexico") 
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
