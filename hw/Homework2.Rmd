@@ -258,7 +258,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r, graphs, warning=FALSE, message=FALSE, error=FALSE}
-print(de)
+
 
 ```
 
@@ -300,9 +300,18 @@ group_by(age_years) %>% mutate(percent = n/sum(n)*100)
 
 causes_normalized_age_male$ordered_vars <- factor(causes_normalized_age_male$cause_of_death, levels=c("OTHER", 'CONGENITAL MALFORMATIONS',"GENITOURINARY","OSTEOMUSCULAR AND CONJUNCTIVE DISEASES","CIRCULATORY SYSTEM", "INFECTION NO HIV", "AIDS", "MENTAL ILLNESS", "LEGAL DRUG ABUSE" , "CANCER", "NERVOUS SYSTEM ILLNESS",  "RESPIRATORY SYSTEM", "SUICIDES" ))
 
-playing<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=ordered_vars)) + 
-    geom_area( size=1, color='black', show.legend = FALSE) 
-  
+causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=ordered_vars)) + 
+    geom_area( size=1, alpha=.8, color='black', show.legend = FALSE) +
+  geom_text(aes(x=23, label="Suicides", y=3), colour="white", size=2.5) +
+   geom_text(aes(x=75, label="Respiratory System", y=3), colour="white", size=2.5) +
+    geom_text(aes(x=75, label="Nervous System", y=8), colour="white", size=2.5) +
+     geom_text(aes(x=30, label="Cancer", y=23), colour="white", size=2.5) +
+     geom_text(aes(x=62, label="Legal Drug Abuse", y=30), colour="white", size=2.5) +
+     geom_text(aes(x=34, label="Mental Illness", y=40), colour="white", size=2.5) +
+     geom_text(aes(x=34, label="AIDS", y=47.5), colour="white", size=2.5) +
+     geom_text(aes(x=85, label="Infections", y=47.5), colour="white", size=2.5) 
+
+ 
 # require(forcats)
 # cause_by_sex <- ggplot(causes, aes(fct_infreq(cause_of_death), colour=sex), decreasing=TRUE)
 # cause_by_sex + geom_bar( aes(fill=sex), width = 0.5,  stat='count', color = "grey40", alpha = .5) + 
