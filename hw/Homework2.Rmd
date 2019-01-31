@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE, include=FALSE}
 library(ggplot2)
 library(here)
 library(zoo)
@@ -41,11 +41,8 @@ load("~/Documents/Chicago_2018_2019/Winter 2019/Data viz/data_viz_work/irs.RData
 
 ```
 
-```{r, message=FALSE}
-ggplot(gini2010, aes(x=gini, y=income_ratio)) + geom_point()
 
-```
-```{r}
+```{r, include=FALSE}
 library(here)
 path = here::here("irs.RData")
 file.exists(path)
@@ -79,7 +76,7 @@ print.data.frame(head(TOTAL_monthly_death_national))
 ```
 
 
-```{r, adding population, include=FALSE}
+```{r, adding population, include=FALSE, warning=FALSE}
 # library(lubridate)
 # monthly_death_national<- 
 #   monthly_death_national %>%
@@ -108,7 +105,7 @@ TOTAL_monthly_death_national<-TOTAL_monthly_death_national %>%
                         mutate(death_rate=n/pop_divide*mult)                      
 ```
 
-```{r, final_manipulation, message=FALSE}
+```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
 library(ggplot2)
 ## TOTAL ####
 total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_rate)) +
@@ -129,7 +126,7 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
 total_rate_plot
 ```
 
-```{r, final_manipulation, message=FALSE}
+```{r, natural deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## NATURAL DEATHS ####
 natural_death_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("N.A/Natural Death")), aes(x=yearmonth, y=death_rate)) +
   geom_line() +ylab('Monthly Rate') +
@@ -147,7 +144,7 @@ natural_death_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% 
 natural_death_plot
 ```
 
-```{r, final_manipulation, message=FALSE}
+```{r, suicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
 
 ## Suicides ####
 suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Suicide")), aes(x=yearmonth, y=death_rate)) +
@@ -157,7 +154,7 @@ suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Sui
   #   color = "#FC4E07", alpha=.04,
   #   method = "loess", se = FALSE) +
  labs(title = "Suicides: Ramping up",
-       subtitle = "Suicides rate have increased in the last 20 years. On average, they have doubled, whereas in the rest of the world, the opposite trend persists",
+       subtitle = "Suicides rate have increased in the last 20 years. On average, they have doubled, whereas in\nthe rest of the world, the opposite trend persists",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_bw() +
@@ -166,7 +163,7 @@ suicide_plot
 ```
 
 
-```{r, final_manipulation, message=FALSE}
+```{r, Accidents Plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## Accidents ####
 max_acident<-max(monthly_death_national[monthly_death_national$non_natural_causes == "Accident",]$death_rate)
 accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Accident")), aes(x=yearmonth,y=death_rate))+
@@ -188,7 +185,7 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
 accidents_plot
 ```
 
-```{r, final_manipulation, message=FALSE}
+```{r, Homicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## Homicides ####
 homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Homicide")), aes(x=yearmonth, y=death_rate)) +
   geom_line() +ylab('Monthly Rate') +
@@ -200,7 +197,7 @@ homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Ho
                 color = "red", size=1)+ 
     geom_text(aes(x=2007.0, label="War on drugs starts", y=.20), colour="red", hjust = 0) +
 labs(title = "Homicides rate: a trend that does not give up ",
-       subtitle = "After a substantive decrease between 2011 and 2015, homicides rate shows a sharp upward trend",
+       subtitle = "After a substantive decrease between 2011-2015, homicides rate shows a sharp upward trend",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   xlab("") +
@@ -209,7 +206,7 @@ labs(title = "Homicides rate: a trend that does not give up ",
 homicide_plot
 ```
 
-```{r, final_manipulation, message=FALSE}
+```{r, wat deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## WAR DEATHS #### jun 2010
 war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Operations") & ANIO_OCUR>2003), aes(x=yearmonth, y=death_rate)) +
   geom_line() +ylab('Monthly Rate') +
@@ -222,15 +219,15 @@ war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Ope
    geom_vline(xintercept =2015.083, linetype="dotted", 
                 color = "red", size=1)+ 
   geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour="red") +
-    labs(title = "War-operations related deaths: the costs of decreasing the homicides rate?",
-       subtitle = "Deaths in this category show a greater variability and levels between 2011 and 2015, a coincident period with the temporal drop in homicides",
+    labs(title = "War-operations: the costs of decreasing the homicides rate?",
+       subtitle = "Deaths in this category show a greater variability and levels between 2011 and 2015, \na coincident period with the temporal drop in homicides",
        caption = "National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_bw()
 war_plot
 ```
 
-```{r, final_manipulation, message=FALSE}
+```{r, dont know plotlines, message=FALSE, echo=FALSE, warning=FALSE}
 
 ## DONT KNOW DEATHS####
 dn_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Don't know")), aes(x=yearmonth, y=death_rate)) +
@@ -245,7 +242,7 @@ dn_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Don't kn
    geom_vline(xintercept =2015.083, linetype="dotted", 
                 color = "red", size=1)+
     labs(title = "Deaths without classification: an increasing State's inability to produce vital stats",
-       subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing lack of State capacity to classify deaths",
+       subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing \nlack of State capacity to classify deaths",
        caption = "National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_bw()+
