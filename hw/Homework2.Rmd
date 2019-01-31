@@ -15,6 +15,7 @@ library(here)
 library(zoo)
 #library(lubridate)
 library(dplyr)
+library(ggridges)
 ```
 
 ```{r, load data, include=FALSE}
@@ -267,7 +268,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
+```{r pressure, warning=FALSE, message=FALSE, error=FALSE}
 causes<- death_certificates %>% select(cause_of_death,sex,school_category, age_years)
 
 causes_male <- filter(causes, cause_of_death!= 'HOMICIDES' & cause_of_death!= 'WAR OPERATIONS' & cause_of_death!= 'OTHER ACCIDENT' & cause_of_death!= 'AIR, WATER, OTHER TRANSPORT ACC' & sex=="Male")
@@ -320,7 +321,7 @@ causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=
        x = "Age", y = "Percent")
 ```
 
-```{r, echo=FALSE}
+```{r, warning=FALSE, message=FALSE, error=FALSE}
 ####### INEQUALITY AND POPULATION #####
 # First I want to create average change in suicide rate
 library(lubridate)
@@ -428,17 +429,17 @@ suicides_ratechange_plot <- ggplot(mean_suicide, aes(x=pop2015.x, y=rate_suic_15
 
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+library(ggridges)
 suicides_national<- death_certificates %>% select(non_natural_causes,sex,school_category, age_years, year_death)
 
 suicides_male <- filter(suicides_national, non_natural_causes=="Suicide" & sex=="Male")
 suicides_male<-suicides_male  %>%
   mutate(year_death=as.character(year_death))
 
-plot<- ggplot(subset(suicides_male, year_death<2017), aes(x = age_years, color=year_death)) +
-  geom_density(alpha = .001)
-plot2<- ggplot(suicides_male, aes(x = age_years, color=year_death)) +
-years<-unique(suicides_male$year_death)
+suicides_female <- filter(suicides_national, non_natural_causes=="Suicide" & sex=="Female")
+suicides_female<-suicides_female  %>%
+  mutate(year_death=as.character(year_death))
 
 mean_age <- suicides_male %>%
     select(age_years, year_death) %>%
@@ -446,18 +447,30 @@ mean_age <- suicides_male %>%
     summarize(xbar = round(mean(age_years, na.rm = TRUE), 0))
 
 ## I copied the code from https://socviz.co/refineplots.html 
-plot_ages <- ggplot(data = suicides_male,
-            mapping = aes(x = age_years, y = factor(rev(year_death)),
+plot_ages_male <- ggplot(data = suicides_male,
+            mapping = aes(x = age_years, y = factor((year_death)),
                                      ordered = TRUE))+
   geom_density_ridges(alpha = 0.6, fill = "lightblue", scale = 1.5) +
     scale_x_continuous(breaks = c(15,25,35, 50, 65, 80)) +
     scale_y_discrete(expand = c(0.01, 0)) + 
     ### NEED TO ADD MEAN geom_vline(data = suicides_male, aes(xintercept = grp.mean), linetype = "dashed")
     labs(x = "Age", y = NULL,
-         title = "Age Distribution of\n Suicide Cases in Mexico 1998-2017") +
+         title = "Age Distribution of\n Male Suicide Cases in Mexico 1998-2017") +
+    theme_ridges() +
+    theme(title = element_text(size = 16, face = "bold")) 
+
+plot_ages_female <- ggplot(data = suicides_female,
+            mapping = aes(x = age_years, y = factor((year_death)),
+                                     ordered = TRUE))+
+  geom_density_ridges(alpha = 0.6, fill = "lightblue", scale = 1.5) +
+    scale_x_continuous(breaks = c(15,25,35, 50, 65, 80)) +
+    scale_y_discrete(expand = c(0.01, 0)) + 
+    ### NEED TO ADD MEAN geom_vline(data = suicides_male, aes(xintercept = grp.mean), linetype = "dashed")
+    labs(x = "Age", y = NULL,
+         title = "Age Distribution of\n Female Suicide Cases in Mexico 1998-2017") +
     theme_ridges() +
     theme(title = element_text(size = 16, face = "bold")) 
     # geom_vline(data = mean_age, aes(xintercept = xbar), color = "red", size = 0.5)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
