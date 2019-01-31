@@ -122,7 +122,8 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
                 color = "red", size=1)+ 
     geom_text(aes(x=2007.1, label="War on drugs starts", y=10), colour="red", hjust = 0) +
   theme_bw() +
-  theme(axis.title.y = element_text(size=12))
+  theme(axis.title.y = element_text(size=12))+
+     theme(plot.title = element_text(lineheight=.8, face="bold"))
 total_rate_plot
 ```
 
@@ -196,7 +197,7 @@ homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Ho
   geom_vline(xintercept =2006.917 , linetype="dotted", 
                 color = "red", size=1)+ 
     geom_text(aes(x=2007.0, label="War on drugs starts", y=.20), colour="red", hjust = 0) +
-labs(title = "Homicides rate: a trend that does not give up ",
+labs(title = "Homicides rate: the upward trend doesn't give up",
        subtitle = "After a substantive decrease between 2011-2015, homicides rate shows a sharp upward trend",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
@@ -315,26 +316,124 @@ causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=
     geom_text(aes(x=75, label="Respiratory System", y=3), colour="white", size=size_parameter) +
     geom_text(aes(x=23, label="Suicides", y=3), colour="white", size=size_parameter) +
   labs(title = "Principal Male Mortality Causes in Mexico 1998-2017",
-       subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing \nlack of State capacity to classify deaths",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Age", y = "Percent")
+```
+
+```{r, echo=FALSE}
+####### INEQUALITY AND POPULATION #####
+# First I want to create average change in suicide rate
+library(lubridate)
+library(stringi)
+
+suicides_municipal_month <-
+  filter(death_certificates, non_natural_causes== 'Suicide') %>% 
+  group_by(state_mun_OCUR, ANIO_OCUR) %>% 
+  tally()
+
+suicides_municipal_month %>% mutate(pop_divide = case_when(ANIO_OCUR<=2002 ~ sum(as.numeric(irs$pop2000), na.rm = TRUE),
+                                          ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
+                                          ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
+                                          ANIO_OCUR>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
+pop15<-irs[,c('pop2015', 'municipal_id')]
+
+suicides_municipal_month<- merge(x = suicides_municipal_month, y = pop15, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
+suicides_15<-(subset(suicides_municipal_month, suicides_municipal_month$ANIO_OCUR==2015))
+suicides_15<- suicides_15 %>%
+  mutate(rate_suic_15 = n/pop2015*100000)
+suicides_municipal_month<-suicides_municipal_month%>%
+  mutate(diff_perc_rate = (((n/pop2015)  - lag((n/pop2015)))/lag((n/pop2015))))
+
+# suicides_municipal_month<- suicides_municipal_month %>%
+#   mutate(diff_perc_rate = ((n  - lag(n))/lag(n)))
+# 
+# irs$municipal_id
+# 
+# ###
+# 
+# suicides_15<- merge(x = subset(suicides_municipal_month, suicides_municipal_month$), y = pop15, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
+
+mean_suicide<-suicides_municipal_month  %>%
+  group_by(state_mun_OCUR) %>%
+  summarise_at(vars(diff_perc_rate), funs(mean(., na.rm=TRUE)))
+
+mean_suicide <- merge(x = mean_suicide, y = irs, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
+mean_suicide <- merge(x = mean_suicide, y = gini2015, by.x = 'state_mun_OCUR', by.y ='id_municipal_gini' )
+mean_suicide <- merge(x=mean_suicide, y = suicides_15, by.x='state_mun_OCUR', by.y = 'state_mun_OCUR')
+mean_suicide<-mean_suicide  %>%
+  mutate(income_ratio=as.numeric(income_ratio))
+mean_suicide<-mean_suicide  %>%
+  mutate(rank15=as.numeric(rank15))
+
+suicides_rate_plot <- ggplot(subset(mean_suicide, mean_suicide$pop2015.x<100000 & mean_suicide$rate_suic_15<100), aes(x=pop2015.x, y=diff_perc_rate))+  # rate_suic_15
+ geom_hex(bins = 30, alpha=.95) + 
+  
+  ggtitle("Smaller and Rural Municipalities have the largest \nsuicides rates in the country")+
+  labs( subtitle = "(Rate of Suicides per 100K inhabitants)",
+      caption="Source: INEGI and CONAPO,Sample limited to n\ population<100,000 and suicide rate<100", x = "Population", y = "Annual Rate (per 100k)")
+
+suicides_ratechange_plot <- ggplot(mean_suicide, aes(x=pop2015.x, y=rate_suic_15))+ geom_hex(bins = 20, alpha=.95)+
+  ggtitle("Smaller and Rural Municipalities also show the largest rate of \n growth in the last 20 years")+
+  labs( subtitle = "Average rate of growth 1999-2017",
+      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Annual Rate (per 100k)")
 
 
 
+# suicides_municipal_month <- merge(x = suicides_municipal_month, y = gini2015, by.x = 'state_mun_OCUR', by.y ='id_municipal_gini' )
+# # mun_suicides2015 <- merge(x = subset(suicides_municipal_month, ANIO_OCUR==2015), y = mean_suicide, by.x = 'state_mun_OCUR', by.y ='state_mun_OCUR' )
+# 
+# suicides_municipal_month<- merge(x = suicides_municipal_month, y = irs, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
+# suicides_municipal_month$
+# suicides_municipal_month<-suicides_municipal_month  %>%
+#   mutate(gini=as.numeric(gini))
+# 
+# suicides_municipal_month<-suicides_municipal_month  %>%
+#   mutate(gini=as.numeric(income_ratio))
+# 
+# # final_mun_gini<-final_mun_gini  %>%
+# #   mutate(gini=as.numeric(gini))
+# ## GGPLOT!
+# head(final_mun_gini15)
+# final_mun_gini15<-final_mun_gini15  %>%
+#   mutate(one_plus_rate_suic= 1 + n/pop2015*100000)
+# 
+# 
+# # breaks = c(seq(0, .6, by=0.1))
+# # labels = as.character(breaks)
+# 
+# scaleFUN <- function(x) sprintf("%.2f", x)
+# inequality_plot <- ggplot(suicides_municipal_month, aes(x=diff_perc_rate, y=gini))+ # colour = irs15, size=pop2015 
+#  geom_point() 
+# +
+#   
+#  scale_y_continuous(trans='log',name ="Log of 1+ suicide rate (log)", labels=scaleFUN) 
+#  
+#  +
+#    # scale_x_continuous(trans='log',name ="log gini", labels=scaleFUN) +
+# 
+#   stat_smooth(color = "#FC4E07", alpha=.04,method = "loess", se=TRUE) +
+#    scale_size_continuous(name = "Density") +
+#   labs(color = "Marginalization \n Index\n(green=richer)") +
+#   scale_color_gradientn(colours = terrain.colors(7))+
+#   ggtitle("Suicides Rate and Inequality in Municipalities")+
+#   labs(subtitle="Average Annual Change, Gini Index and Marginalization", 
+#       caption="Source: INEGI") 
 
- 
-# require(forcats)
-# cause_by_sex <- ggplot(causes, aes(fct_infreq(cause_of_death), colour=sex), decreasing=TRUE)
-# cause_by_sex + geom_bar( aes(fill=sex), width = 0.5,  stat='count', color = "grey40", alpha = .5) + 
-#   theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
-#   coord_flip() +
-#   labs(subtitle="Cumulative cases 1998-2017", 
-#        caption="Source: INEGI") +
-# # theme(legend.position = "top")+
-#   xlab("Cause") + 
-#   ylab("Frequency")                 +
-#   theme(plot.title = element_text(hjust = 0.5))+
-#   ggtitle("Principal Causes of Death in Mexico") 
+
+  
+
+  
+  
+
+
+```
+
+```{r}
+suicides_national<- death_certificates %>% select(non_natural_causes,sex,school_category, age_years)
+
+homicides_male <- filter(suicides_national, non_natural_causes=="Suicide" & sex=="Male")
+
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
