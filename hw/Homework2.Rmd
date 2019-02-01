@@ -102,11 +102,18 @@ TOTAL_monthly_death_national<-
 mult<-100000
 monthly_death_national<-monthly_death_national %>% 
                         mutate(death_rate=n/pop_divide*mult)
+monthly_death_national<-monthly_death_national %>% 
+                        mutate(natural= if_else((is.null(non_natural_causes) | non_natural_causes=="N.A/Natural Death"),1,0))
 TOTAL_monthly_death_national<-TOTAL_monthly_death_national %>% 
                         mutate(death_rate=n/pop_divide*mult)                      
 ```
-In the last 12 years, scholars and policy makers have paid special attention to the increase in mortality in Mexico. This attention has focused on explaining the rise in homicides rate as a consequence of the policies implemented to fight  drug cartels. Though perhaps this is the most challenging policy challenge for the Mexican authorities and it is a source of regional concerns to the US and other neihghbours, the patterns of mortality in Mexico have been barely explored in other dimensions. This work aims to explore other characteristics of mortality trends in Mexico, and has a special focus on analyzing the pattern of public health-related mortality.
-Chart 1 shows the trend in the overall pattern of mortality in Mexico. It is interesing to note that there is a smooth increase in mortality rates starting in 2005, one year before the so called war on drugs was implemented by former President Felipe Calderon.
+# Introduction 
+In the last 12 years, scholars and policy makers have paid special attention to the increase in mortality in Mexico. This attention has focused on explaining the rise in homicides as a consequence of the policies implemented to fight against drug cartels. Though perhaps this is the most important policy challenge for the Mexican authorities and it is a source of regional concerns to the US and other neihghbours, other  patterns of mortality in Mexico receive much less attention. This work aims to explore other characteristics of mortality trends in Mexico, and has a focus on analyzing the pattern of public-health related mortality, especially suicides.
+
+## 1. General Patterns of Mortality
+### A. Total Deaths
+
+Chart 1 shows the trend in the overall pattern of mortality in Mexico. It is interesing to note that there is a smooth increase in mortality rates starting in 2005, one year before the so called war on drugs was implemented by former President Felipe Calderon. We can distinguish a period in which monthly mortality rates fluctuated around 30, and then there is a smooth jump above 30.
 ```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
 library(ggplot2)
 ## TOTAL ####
@@ -128,10 +135,11 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
      theme(plot.title = element_text(lineheight=.8, face="bold"))
 total_rate_plot
 ```
-
+### B. Natural Deaths
+Once we only consider natural deaths, we observe a similar behavior as the total deaths. 
 ```{r, natural deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## NATURAL DEATHS ####
-natural_death_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("N.A/Natural Death")), aes(x=yearmonth, y=death_rate)) +
+natural_death_plot=ggplot(subset(monthly_death_national,natural== 1 ), aes(x=yearmonth, y=death_rate)) +
   geom_line() +ylab('Monthly Rate') +
   geom_line(col="blue", alpha=.6)  +
    labs(title = "Natural Deaths Mortality Rate in Mexico 1998-2017",
@@ -146,6 +154,9 @@ natural_death_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% 
   theme(axis.title.y = element_text(size=12))
 natural_death_plot
 ```
+###C. Suicides
+[In a recent article] (https://www.economist.com/the-economist-explains/2018/11/30/why-the-global-suicide-rate-is-falling), the British magazine "The Economist" notes that the is a global trend in the decline of suicides, mostly driven by China, India and Russia. But they note that America is the big exception: this century its suicides rate has grown 18%, and if 20 years ago China's rate double America's, this relationship has been reversed.
+Perhaps for its smaller size as compared to India or China, the article does not mention Mexico, but as the chart below shows, there has been a sharp increase in suicides in the last 20 years, a period in which the rate almost doubles. Later in this work I aim to explore the data to answer some basic questions like: who are these people? where and when this phenomenon occur? and what are the characteristics of this group?
 
 ```{r, suicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -165,7 +176,8 @@ suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Sui
 suicide_plot
 ```
 
-
+###D. Accidents
+On the opposite side, we observe an important reduction in the number of people who died in an accident. The peak in the rate of deaths caused by accidents occured in December 2000, and it has remained stable since 2010.
 ```{r, Accidents Plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## Accidents ####
 max_acident<-max(monthly_death_national[monthly_death_national$non_natural_causes == "Accident",]$death_rate)
@@ -188,6 +200,9 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
 accidents_plot
 ```
 
+###E. Homicides
+This is probably the chart that has received the most detailed analysis by scholars in Mexico in recent years. We can distinguish four periods. First, before 2006, we observe a secular decline in the rate of homicides. Using other data sources, we observe how this trend had at least 20 years of decline before 2006, and it was mostly explained because a land reform, implemented during the eighties, put an end to conflicts around land-owning disputes that usually ended with violence. Second, this declining trend ended with the implementation of the so called 'war on drugs', which premise was to use the military forces to dismantle drug cartels. We observe a sharp increase in homicides rate until 2011, and then a third short period in which the rate decreased. Then, after 2015, the rate increased again.
+
 ```{r, Homicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## Homicides ####
 homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Homicide")), aes(x=yearmonth, y=death_rate)) +
@@ -209,6 +224,9 @@ labs(title = "Homicides rate: the upward trend doesn't give up",
 homicide_plot
 ```
 
+###F. War operations related deaths
+
+This is a pretty much new classification that started to be used in the certificate deaths in 2004. We can distinguish a period between 2011 and 2015 in which both the month-to-month levels and variation in this rate increased. As the chart shows, the spikes are more frequent and of larger magnitude. Then, after this period, the spikes become shorter and the rate decreased too. I assume that these deaths are related to the army forces that lost their lives in different operations, mostly related to the fight against drug cartels. An interesting hypothesis to explore is the fact that this period of large variation also corresponds to the period of homicides decline, suggesting that a major involvement of the army forces may had a dissuasive effect on the probability of commiting homicides. 
 ```{r, wat deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## WAR DEATHS #### jun 2010
 war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Operations") & ANIO_OCUR>2003), aes(x=yearmonth, y=death_rate)) +
@@ -230,6 +248,8 @@ war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Ope
 war_plot
 ```
 
+###G. Deaths with no classification
+This classification correspond to non-natural casuses of death that were not classified. This chart shows an interesting behavior of deaths in this category. They follow a similar pattern as the homicides' one: a relative decline up to the mid 2000's; then an increase between 2010 and 2012, followed by a decrease up to around 2015. After this, we are observing an upward trend of these deaths. Finally, we should just underline that this inability to register non-natural cause deaths reflects in the best case a deterioration in the state capacity to keep the record of deaths, and in a context of the increase in violence, gives rise to doubts about the way the authorities collect and present information.
 ```{r, dont know plotlines, message=FALSE, echo=FALSE, warning=FALSE}
 
 ## DONT KNOW DEATHS####
@@ -254,16 +274,6 @@ dn_plot
 ```
 
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-
-## Including Plots
-
-You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
 causes<- death_certificates %>% select(cause_of_death,sex,school_category, age_years)
