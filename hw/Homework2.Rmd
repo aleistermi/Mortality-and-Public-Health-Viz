@@ -72,8 +72,6 @@ TOTAL_monthly_death_national <-
   death_certificates %>% 
   group_by(yearmonth, ANIO_OCUR) %>% 
   tally()
-print.data.frame(head(TOTAL_monthly_death_national))
-
 ```
 
 
@@ -123,7 +121,7 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
   stat_smooth(
     color = "#FC4E07", alpha=.04,
     method = "loess", se = FALSE) +
-      labs(title = "Chart 1. Monthly Mortality Rate in Mexico 1998-2017",
+      labs(title = "1A. Monthly Mortality Rate in Mexico 1998-2017",
        subtitle = "Total deaths rate trend shows is increasing, probably driven by the grow in the homicides-rate",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
@@ -135,14 +133,16 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
      theme(plot.title = element_text(lineheight=.8, face="bold"))
 total_rate_plot
 ```
+
 ### B. Natural Deaths
+
 Once we only consider natural deaths, we observe a similar behavior as the total deaths. 
 ```{r, natural deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## NATURAL DEATHS ####
 natural_death_plot=ggplot(subset(monthly_death_national,natural== 1 ), aes(x=yearmonth, y=death_rate)) +
   geom_line() +ylab('Monthly Rate') +
   geom_line(col="blue", alpha=.6)  +
-   labs(title = "Natural Deaths Mortality Rate in Mexico 1998-2017",
+   labs(title = "1B. Natural Deaths Mortality Rate in Mexico 1998-2017",
        subtitle = "Once we exclude non-natural causes, we observe that rates in deaths has also increased in Mexico",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
@@ -151,11 +151,14 @@ natural_death_plot=ggplot(subset(monthly_death_national,natural== 1 ), aes(x=yea
     method = "loess", se = FALSE) +
   xlab("") +
   theme_bw()+
-  theme(axis.title.y = element_text(size=12))
+  theme(axis.title.y = element_text(size=12)) +
+     theme(plot.title = element_text(lineheight=.8, face="bold"))
 natural_death_plot
 ```
-###C. Suicides
-[In a recent article] (https://www.economist.com/the-economist-explains/2018/11/30/why-the-global-suicide-rate-is-falling), the British magazine "The Economist" notes that the is a global trend in the decline of suicides, mostly driven by China, India and Russia. But they note that America is the big exception: this century its suicides rate has grown 18%, and if 20 years ago China's rate double America's, this relationship has been reversed.
+
+### C. Suicides
+
+In a recent article (https://econ.st/2WuSTSN), the British magazine "The Economist" notes that the is a global trend in the decline of suicides, mostly driven by China, India and Russia. But they note that America is the big exception: this century its suicides rate has grown 18%, and if 20 years ago China's rate double America's, this relationship has been reversed.
 Perhaps for its smaller size as compared to India or China, the article does not mention Mexico, but as the chart below shows, there has been a sharp increase in suicides in the last 20 years, a period in which the rate almost doubles. Later in this work I aim to explore the data to answer some basic questions like: who are these people? where and when this phenomenon occur? and what are the characteristics of this group?
 
 ```{r, suicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
@@ -167,17 +170,21 @@ suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Sui
   # stat_smooth(
   #   color = "#FC4E07", alpha=.04,
   #   method = "loess", se = FALSE) +
- labs(title = "Suicides: Ramping up",
+ labs(title = "1C. Suicides: Ramping up",
        subtitle = "Suicides rate have increased in the last 20 years. On average, they have doubled, whereas in\nthe rest of the world, the opposite trend persists",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_bw() +
-  theme(axis.title.y = element_text(size=12))
+  theme(axis.title.y = element_text(size=12)) +
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+
 suicide_plot
 ```
 
-###D. Accidents
+### D. Accidents
+
 On the opposite side, we observe an important reduction in the number of people who died in an accident. The peak in the rate of deaths caused by accidents occured in December 2000, and it has remained stable since 2010.
+
 ```{r, Accidents Plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## Accidents ####
 max_acident<-max(monthly_death_national[monthly_death_national$non_natural_causes == "Accident",]$death_rate)
@@ -187,7 +194,7 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
   # stat_smooth(
   #   color = "#FC4E07", alpha=.04,
   #   method = "loess", se = FALSE) +
-  labs(title = "Dwindling accidents",
+  labs(title = "1D. Dwindling accidents",
        subtitle = "Accident-related deaths show a smooth decrease in the last 20 years",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
@@ -196,11 +203,13 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
   geom_text(aes(x=2001.2, label="December 2000: maximum \nmonthly rate in 20 years (4.8)", y=2.5), colour="red", hjust = 0) +
     #geom_text(aes(x=2003.9, label="Maximum monthly rate \n in 20 years: 4.8", y=3), colour="red") +
   theme_bw()+
-  theme(axis.title.y = element_text(size=12))
+  theme(axis.title.y = element_text(size=12)) +
+       theme(plot.title = element_text(lineheight=.8, face="bold"))
+
 accidents_plot
 ```
 
-###E. Homicides
+### E. Homicides
 This is probably the chart that has received the most detailed analysis by scholars in Mexico in recent years. We can distinguish four periods. First, before 2006, we observe a secular decline in the rate of homicides. Using other data sources, we observe how this trend had at least 20 years of decline before 2006, and it was mostly explained because a land reform, implemented during the eighties, put an end to conflicts around land-owning disputes that usually ended with violence. Second, this declining trend ended with the implementation of the so called 'war on drugs', which premise was to use the military forces to dismantle drug cartels. We observe a sharp increase in homicides rate until 2011, and then a third short period in which the rate decreased. Then, after 2015, the rate increased again.
 
 ```{r, Homicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
@@ -214,17 +223,19 @@ homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Ho
   geom_vline(xintercept =2006.917 , linetype="dotted", 
                 color = "red", size=1)+ 
     geom_text(aes(x=2007.0, label="War on drugs starts", y=.20), colour="red", hjust = 0) +
-labs(title = "Homicides rate: the upward trend doesn't give up",
+labs(title = "1E. Homicides rate: an upward trend that doesn't give up",
        subtitle = "After a substantive decrease between 2011-2015, homicides rate shows a sharp upward trend",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   xlab("") +
   theme_bw()+
-  theme(axis.title.y = element_text(size=12))
+  theme(axis.title.y = element_text(size=12)) +      
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+
 homicide_plot
 ```
 
-###F. War operations related deaths
+### F. War operations related deaths
 
 This is a pretty much new classification that started to be used in the certificate deaths in 2004. We can distinguish a period between 2011 and 2015 in which both the month-to-month levels and variation in this rate increased. As the chart shows, the spikes are more frequent and of larger magnitude. Then, after this period, the spikes become shorter and the rate decreased too. I assume that these deaths are related to the army forces that lost their lives in different operations, mostly related to the fight against drug cartels. An interesting hypothesis to explore is the fact that this period of large variation also corresponds to the period of homicides decline, suggesting that a major involvement of the army forces may had a dissuasive effect on the probability of commiting homicides. 
 ```{r, wat deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
@@ -240,16 +251,19 @@ war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Ope
    geom_vline(xintercept =2015.083, linetype="dotted", 
                 color = "red", size=1)+ 
   geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour="red") +
-    labs(title = "War-operations: the costs of decreasing the homicides rate?",
+    labs(title = "1F. War operations: the costs of decreasing the homicides rate?",
        subtitle = "Deaths in this category show a greater variability and levels between 2011 and 2015, \na coincident period with the temporal drop in homicides",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
-  theme_bw()
+       theme(axis.title.y = element_text(size=12)) +      
+        theme(plot.title = element_text(lineheight=.8, face="bold")) +
+       theme_bw()
 war_plot
 ```
 
-###G. Deaths with no classification
+### G. Deaths with no classification
 This classification correspond to non-natural casuses of death that were not classified. This chart shows an interesting behavior of deaths in this category. They follow a similar pattern as the homicides' one: a relative decline up to the mid 2000's; then an increase between 2010 and 2012, followed by a decrease up to around 2015. After this, we are observing an upward trend of these deaths. Finally, we should just underline that this inability to register non-natural cause deaths reflects in the best case a deterioration in the state capacity to keep the record of deaths, and in a context of the increase in violence, gives rise to doubts about the way the authorities collect and present information.
+
 ```{r, dont know plotlines, message=FALSE, echo=FALSE, warning=FALSE}
 
 ## DONT KNOW DEATHS####
@@ -264,18 +278,20 @@ dn_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Don't kn
                 color = "red", size=1)+
    geom_vline(xintercept =2015.083, linetype="dotted", 
                 color = "red", size=1)+
-    labs(title = "Deaths without classification: an increasing State's inability to produce vital stats",
+    labs(title = "1G. State's inability to produce vital stats",
        subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing \nlack of State capacity to classify deaths",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_bw()+
-  theme(axis.title.y = element_text(size=12))
+  theme(axis.title.y = element_text(size=12)) +
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+
 dn_plot
 ```
 
-##2. Causes of death
+## 2. Causes of death
 
-To create this chart, I re-grouped the classification coming in the databases (which use the [International Classification of Diseases](https://www.who.int/classifications/icd/en/)) into 13 categories, and then I wanted to show which causes of death are more prevalent along age ([I got inspired from Nathan Yau's chart](https://flowingdata.com/2016/01/05/causes-of-death/). The chart only shows the cause of death for males. As expected, some causes of death are more prevalent for young than for old people and viceversa. For instance, suicides affect mostly younf people; and as you get older, the chances of dying by a respiratory system related cause increases. 
+To create this chart, I re-grouped the classification coming in the databases (which use the [International Classification of Diseases](https://www.who.int/classifications/icd/en/)) into 13 categories, and then I wanted to show which causes of death are more prevalent along age ([I got inspired from Nathan Yau's chart](https://flowingdata.com/2016/01/05/causes-of-death/)). The chart only shows the cause of death for males. As expected, some causes of death are more prevalent for young than for old people and viceversa. For instance, suicides affect mostly younf people; and as you get older, the chances of dying by a respiratory system related cause increases. 
 
 
 ```{r pressure, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
@@ -326,16 +342,21 @@ causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=
     geom_text(aes(x=75, label="Nervous System", y=8), colour="white", size=size_parameter) +
     geom_text(aes(x=75, label="Respiratory System", y=3), colour="white", size=size_parameter) +
     geom_text(aes(x=23, label="Suicides", y=3), colour="white", size=size_parameter) +
-  labs(title = "Principal Male Mortality Causes in Mexico 1998-2017",
+  labs(title = "2. Principal Male Mortality Causes in Mexico 1998-2017",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
-       x = "Age", y = "Percent")
+       x = "Age", y = "Percent") +
+       theme(plot.title = element_text(lineheight=.8, face="bold"))
+
 causesplot
 ```
+
 ## 3. Suicides
+
 ### A. Male and Female Suicides
+
 What are the some of the characteristics of suicides in Mexico? The chart below analyzes the distribution of ages across males and females, and aims to explore if there is a change in the age composition of suicides in the last 20 years. The Economist's article emphasizes that the drop in suicides around the world is driven by three groups: young women in China and India; middle-age men in Russia and old people all around the world. Then, a pertinent question is which groups explain the rise in suicides?
 
-The first thing to note is that suicides are more prevalent among young and males (though with these charts I do not intend to support the argument that it is more prevalent in males). The mean age for males is around 36.1 years old, and for females is 30.5 across period 1998-2017. The chart on top shows the distribution of ages for males. From this chart, it is important to notice that across the years, the curves have flattened, suggesting that suicides are becoming more prevalent in middle-age groups (i.e. the 1998 distribution was more compact and peaked than the 2017 distribution, which left tail is getting longer, concentraring its mass distribution on the right). This pattern is more notable for females, where most recent distributions (2016-2017) discretely suggest a bimodal distribution.
+The first thing to note is that suicides are more prevalent among young and males (though with these charts I do not intend to support the argument that it is more prevalent in males). The mean age for males is around 36.1 years old, and for females is 30.5 across period 1998-2017. The chart on top shows the distribution of ages for males ([this code comes from here](https://socviz.co/refineplots.html)). From this chart, it is important to notice that across the years, the curves have flattened, suggesting that suicides are becoming more prevalent in middle-age groups (i.e. the 1998 distribution was more compact and peaked than the 2017 distribution, which left tail is getting longer, concentraring its mass distribution on the right). In fact, the average age ot death for males went from  34.6 in 1998 to 36.1, and for females from 28.9 to 31.6. This flattening of the curve is also notable for females.
 
 ```{r, warning=FALSE, message=FALSE, error=FALSE, echo=FALSE}
 library(ggridges)
@@ -352,11 +373,11 @@ suicides_female<-suicides_female  %>%
 mean_age_m <- suicides_male %>%
     select(age_years, year_death) %>%
     group_by(year_death) %>%
-    summarize(xbar = round(mean(age_years, na.rm = TRUE), 0))
+    summarize(xbar = (mean(age_years, na.rm = TRUE)))
 mean_age_f <- suicides_female %>%
     select(age_years, year_death) %>%
     group_by(year_death) %>%
-    summarize(xbar = round(mean(age_years, na.rm = TRUE), 0))
+    summarize(xbar = (mean(age_years, na.rm = TRUE)))
 
 ## I copied the code from https://socviz.co/refineplots.html 
 plot_ages_male <- ggplot(data = suicides_male,
@@ -365,11 +386,11 @@ plot_ages_male <- ggplot(data = suicides_male,
   geom_density_ridges(alpha = 0.6, fill = "lightblue", scale = 1.5) +
     scale_x_continuous(breaks = c(15,25,35, 50, 65, 80)) +
     scale_y_discrete(expand = c(0.01, 0)) + 
-    ### NEED TO ADD MEAN geom_vline(data = suicides_male, aes(xintercept = grp.mean), linetype = "dashed")
+    #geom_vline(data = mean_age_m, aes(xintercept =xbar ), linetype = "dashed") +
     labs(x = "Age", y = NULL,
-         title = "Age Distribution of\n Male Suicide Cases in Mexico 1998-2017") +
+         title = "3A1. Age Distribution of\n Male Suicide Cases in Mexico 1998-2017") +
     theme_ridges() +
-    theme(title = element_text(size = 16, face = "bold")) 
+    theme(title = element_text(size = 16, face = "bold"))
 plot_ages_male
 ##females####
 plot_ages_female <- ggplot(data = suicides_female,
@@ -380,7 +401,7 @@ plot_ages_female <- ggplot(data = suicides_female,
     scale_y_discrete(expand = c(0.01, 0)) + 
     ### NEED TO ADD MEAN geom_vline(data = suicides_male, aes(xintercept = grp.mean), linetype = "dashed")
     labs(x = "Age", y = NULL,
-         title = "Age Distribution of\n Female Suicide Cases in Mexico 1998-2017") +
+         title = "3A2. Age Distribution of\n Female Suicide Cases in Mexico 1998-2017") +
     theme_ridges() +
     theme(title = element_text(size = 16, face = "bold")) 
     # geom_vline(data = mean_age, aes(xintercept = xbar), color = "red", size = 0.5)
@@ -392,7 +413,7 @@ plot_ages_female
 The first chart below plots the annual suicide rate (cases per 100 thousand inhabitants) and municipality's population size. The data to create this chart was censored for municipalities that have more than 100,000 inhabitants, which are only a small hand of cities with low suicide rates. Then, across all municipalities, the rates of suicides are pretty similar, but after a certain size threshold (around 25 thousand inhabitants), the rate increases much more. Otherwise said, municipalities that are small in size present the largest rate of homicides.
 The chart below present a similar information, but plots on the y axis the average annual change rate in suicides rate for the entire sample period (1998-2017). Again, smaller municipalities show the fastest increase in the rate of homicides.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
 ####### SUICIDES AND POPULATION #####
 # First I want to create average change in suicide rate
 library(lubridate)
@@ -411,19 +432,12 @@ pop15<-irs[,c('pop2015', 'municipal_id')]
 
 suicides_municipal_month<- merge(x = suicides_municipal_month, y = pop15, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
 suicides_15<-(subset(suicides_municipal_month, suicides_municipal_month$ANIO_OCUR==2015))
+
 suicides_15<- suicides_15 %>%
   mutate(rate_suic_15 = n/pop2015*100000)
 suicides_municipal_month<-suicides_municipal_month%>%
   mutate(diff_perc_rate = (((n/pop2015)  - lag((n/pop2015)))/lag((n/pop2015))))
 
-# suicides_municipal_month<- suicides_municipal_month %>%
-#   mutate(diff_perc_rate = ((n  - lag(n))/lag(n)))
-# 
-# irs$municipal_id
-# 
-# ###
-# 
-# suicides_15<- merge(x = subset(suicides_municipal_month, suicides_municipal_month$), y = pop15, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
 
 mean_suicide<-suicides_municipal_month  %>%
   group_by(state_mun_OCUR) %>%
@@ -440,63 +454,20 @@ mean_suicide<-mean_suicide  %>%
 suicides_rate_plot <- ggplot(subset(mean_suicide, mean_suicide$pop2015.x<100000), aes(x=pop2015.x, y=diff_perc_rate))+  # rate_suic_15
  geom_hex(bins = 30, alpha=.95) + 
   
-  ggtitle("Smaller and Rural Municipalities have the largest \nsuicides rates in the country")+
+  ggtitle("3B1. Smaller and Rural Municipalities have the largest \nsuicides rates in the country")+
   labs( subtitle = "(Rate of Suicides per 100K inhabitants)",
-      caption="Source: INEGI and CONAPO,Sample limited to n\ population<100,000 and suicide rate<100", x = "Population", y = "Annual Rate (per 100k)") #& mean_suicide$rate_suic_15<100
+      caption="Source: INEGI and CONAPO,Sample limited to n\ population<100,000 and suicide rate<100", x = "Population", y = "Annual Rate (per 100k)") +
+       theme(plot.title = element_text(lineheight=.8, face="bold"))
 
 suicides_ratechange_plot <- ggplot(mean_suicide, aes(x=pop2015.x, y=rate_suic_15))+ geom_hex(bins = 20, alpha=.95)+
-  ggtitle("Smaller and Rural Municipalities also show the largest rate of \n growth in the last 20 years")+
+  ggtitle("3B2. Smaller and Rural Municipalities also show the largest rate of \n growth in the last 20 years")+
   labs( subtitle = "Average rate of growth 1999-2017",
-      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Annual Rate (per 100k)")
+      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Rate (%)") +
+       theme(plot.title = element_text(lineheight=.8, face="bold"))
+
 
 suicides_rate_plot
 suicides_ratechange_plot
-
-# suicides_municipal_month <- merge(x = suicides_municipal_month, y = gini2015, by.x = 'state_mun_OCUR', by.y ='id_municipal_gini' )
-# # mun_suicides2015 <- merge(x = subset(suicides_municipal_month, ANIO_OCUR==2015), y = mean_suicide, by.x = 'state_mun_OCUR', by.y ='state_mun_OCUR' )
-# 
-# suicides_municipal_month<- merge(x = suicides_municipal_month, y = irs, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
-# suicides_municipal_month$
-# suicides_municipal_month<-suicides_municipal_month  %>%
-#   mutate(gini=as.numeric(gini))
-# 
-# suicides_municipal_month<-suicides_municipal_month  %>%
-#   mutate(gini=as.numeric(income_ratio))
-# 
-# # final_mun_gini<-final_mun_gini  %>%
-# #   mutate(gini=as.numeric(gini))
-# ## GGPLOT!
-# head(final_mun_gini15)
-# final_mun_gini15<-final_mun_gini15  %>%
-#   mutate(one_plus_rate_suic= 1 + n/pop2015*100000)
-# 
-# 
-# # breaks = c(seq(0, .6, by=0.1))
-# # labels = as.character(breaks)
-# 
-# scaleFUN <- function(x) sprintf("%.2f", x)
-# inequality_plot <- ggplot(suicides_municipal_month, aes(x=diff_perc_rate, y=gini))+ # colour = irs15, size=pop2015 
-#  geom_point() 
-# +
-#   
-#  scale_y_continuous(trans='log',name ="Log of 1+ suicide rate (log)", labels=scaleFUN) 
-#  
-#  +
-#    # scale_x_continuous(trans='log',name ="log gini", labels=scaleFUN) +
-# 
-#   stat_smooth(color = "#FC4E07", alpha=.04,method = "loess", se=TRUE) +
-#    scale_size_continuous(name = "Density") +
-#   labs(color = "Marginalization \n Index\n(green=richer)") +
-#   scale_color_gradientn(colours = terrain.colors(7))+
-#   ggtitle("Suicides Rate and Inequality in Municipalities")+
-#   labs(subtitle="Average Annual Change, Gini Index and Marginalization", 
-#       caption="Source: INEGI") 
-
-
-  
-
-  
-  
 
 
 ```
