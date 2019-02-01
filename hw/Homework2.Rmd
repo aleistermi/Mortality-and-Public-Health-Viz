@@ -105,7 +105,8 @@ monthly_death_national<-monthly_death_national %>%
 TOTAL_monthly_death_national<-TOTAL_monthly_death_national %>% 
                         mutate(death_rate=n/pop_divide*mult)                      
 ```
-
+In the last 12 years, scholars and policy makers have paid special attention to the increase in mortality in Mexico. This attention has focused on explaining the rise in homicides rate as a consequence of the policies implemented to fight  drug cartels. Though perhaps this is the most challenging policy challenge for the Mexican authorities and it is a source of regional concerns to the US and other neihghbours, the patterns of mortality in Mexico have been barely explored in other dimensions. This work aims to explore other characteristics of mortality trends in Mexico, and has a special focus on analyzing the pattern of public health-related mortality.
+Chart 1 shows the trend in the overall pattern of mortality in Mexico. It is interesing to note that there is a smooth increase in mortality rates starting in 2005, one year before the so called war on drugs was implemented by former President Felipe Calderon.
 ```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
 library(ggplot2)
 ## TOTAL ####
@@ -115,7 +116,7 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
   stat_smooth(
     color = "#FC4E07", alpha=.04,
     method = "loess", se = FALSE) +
-      labs(title = "Monthly Mortality Rate in Mexico 1998-2017",
+      labs(title = "Chart 1. Monthly Mortality Rate in Mexico 1998-2017",
        subtitle = "Total deaths rate trend shows is increasing, probably driven by the grow in the homicides-rate",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
@@ -259,16 +260,12 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r, graphs, warning=FALSE, message=FALSE, error=FALSE}
-
-
-```
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, warning=FALSE, message=FALSE, error=FALSE}
+```{r pressure, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
 causes<- death_certificates %>% select(cause_of_death,sex,school_category, age_years)
 
 causes_male <- filter(causes, cause_of_death!= 'HOMICIDES' & cause_of_death!= 'WAR OPERATIONS' & cause_of_death!= 'OTHER ACCIDENT' & cause_of_death!= 'AIR, WATER, OTHER TRANSPORT ACC' & sex=="Male")
@@ -319,9 +316,10 @@ causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=
   labs(title = "Principal Male Mortality Causes in Mexico 1998-2017",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Age", y = "Percent")
+causesplot
 ```
 
-```{r, warning=FALSE, message=FALSE, error=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
 ####### INEQUALITY AND POPULATION #####
 # First I want to create average change in suicide rate
 library(lubridate)
@@ -378,7 +376,8 @@ suicides_ratechange_plot <- ggplot(mean_suicide, aes(x=pop2015.x, y=rate_suic_15
   labs( subtitle = "Average rate of growth 1999-2017",
       caption="Source: INEGI and CONAPO" ,x = "Population", y = "Annual Rate (per 100k)")
 
-
+suicides_rate_plot
+suicides_ratechange_plot
 
 # suicides_municipal_month <- merge(x = suicides_municipal_month, y = gini2015, by.x = 'state_mun_OCUR', by.y ='id_municipal_gini' )
 # # mun_suicides2015 <- merge(x = subset(suicides_municipal_month, ANIO_OCUR==2015), y = mean_suicide, by.x = 'state_mun_OCUR', by.y ='state_mun_OCUR' )
@@ -429,7 +428,7 @@ suicides_ratechange_plot <- ggplot(mean_suicide, aes(x=pop2015.x, y=rate_suic_15
 
 ```
 
-```{r, warning=FALSE, message=FALSE, error=FALSE}
+```{r, warning=FALSE, message=FALSE, error=FALSE, echo=FALSE}
 library(ggridges)
 suicides_national<- death_certificates %>% select(non_natural_causes,sex,school_category, age_years, year_death)
 
@@ -458,7 +457,7 @@ plot_ages_male <- ggplot(data = suicides_male,
          title = "Age Distribution of\n Male Suicide Cases in Mexico 1998-2017") +
     theme_ridges() +
     theme(title = element_text(size = 16, face = "bold")) 
-
+plot_ages_male
 plot_ages_female <- ggplot(data = suicides_female,
             mapping = aes(x = age_years, y = factor((year_death)),
                                      ordered = TRUE))+
@@ -471,6 +470,7 @@ plot_ages_female <- ggplot(data = suicides_female,
     theme_ridges() +
     theme(title = element_text(size = 16, face = "bold")) 
     # geom_vline(data = mean_age, aes(xintercept = xbar), color = "red", size = 0.5)
+plot_ages_female
 ```
 
 
