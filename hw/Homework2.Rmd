@@ -478,7 +478,6 @@ suicides_rate_plot
 
 ```{r}
 daily_suicides<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
-
 daily_suicides <-  daily_suicides  %>%
   mutate(day_of_suicide=weekdays(as.Date(date_death)))
 
@@ -488,12 +487,13 @@ daily_suicides$hour_suicide <- hour(daily_suicides$numeric_time)
 
 test_suicides <-
   daily_suicides %>% 
-  group_by(hour_suicide, day_of_suicide) %>% 
+  group_by(hour_suicide, day_of_suicide, sex) %>% 
   tally()
-suicides_time <- ggplot(test %>% filter(!is.na(day_of_suicide)), aes(x=hour, y=day_of_suicide)) + 
-  geom_point() 
-+ 
-  scale_y_datetime(date_labels = "%H:%M", date_breaks = "1 hour")
+# suicides_time <- ggplot(test %>% filter(!is.na(day_of_suicide)), aes(x=hour, y=day_of_suicide)) + 
+#   geom_point() 
+# + 
+#   scale_y_datetime(date_labels = "%H:%M", date_breaks = "1 hour")
+
 test_suicides$day_of_suicide <- factor(test_suicides$day_of_suicide, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
                                                       
@@ -507,7 +507,55 @@ p <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide)), aes(hour_suicide, 
   #geom_raster() 
  #stat_density(aes(fill = stat(density)), geom = "raster", position = "identity")
  geom_tile(aes(fill = n), color="white") +
-scale_fill_gradient2(high = "darkred")
+scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
+    scale_x_continuous(position = "top", breaks=test_suicides$hour_suicide) +
+  ggtitle("Suicide cases by weekday and time of the day")+
+  labs( #subtitle = "Average rate of growth 1999-2017",
+      caption="Source: INEGI and CONAPO" ,x = "Time", y = "Day") 
+p_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=="Female"), aes(hour_suicide, day_of_suicide,  fill=n)) +  
+  # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
+  # #geom_raster() +
+  #geom_raster() 
+ #stat_density(aes(fill = stat(density)), geom = "raster", position = "identity")
+ geom_tile(aes(fill = n), color="white") +
+scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
+    scale_x_continuous(position = "top", breaks=test_suicides$hour_suicide) +
+  ggtitle("Suicide cases by weekday and time of the day")+
+  labs( #subtitle = "Average rate of growth 1999-2017",
+      caption="Source: INEGI and CONAPO" ,x = "Time", y = "Day") 
+
+######### HOMICIDES########
+daily_homicides<-death_certificates[which(death_certificates$non_natural_causes=="Homicide"),] 
+daily_homicides <-  daily_homicides  %>%
+  mutate(day_of_homicide=weekdays(as.Date(date_death)))
+
+
+daily_homicides$numeric_time<- as.POSIXct(daily_homicides$time_death, format = "%H:%M:%S")
+daily_homicides$hour_homicide <- hour(daily_homicides$numeric_time)
+
+daily_homicides <-
+  daily_homicides %>% 
+  group_by(hour_homicide, day_of_homicide) %>% 
+  tally()
+# suicides_time <- ggplot(test %>% filter(!is.na(day_of_suicide)), aes(x=hour, y=day_of_suicide)) + 
+#   geom_point() 
+# + 
+#   scale_y_datetime(date_labels = "%H:%M", date_breaks = "1 hour")
+
+daily_homicides$day_of_homicide <- factor(daily_homicides$day_of_homicide, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+p_hom <- ggplot(daily_homicides %>% filter(!is.na(day_of_homicide)), aes(hour_homicide, day_of_homicide,  fill=n)) +  
+  # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
+  # #geom_raster() +
+  #geom_raster() 
+ #stat_density(aes(fill = stat(density)), geom = "raster", position = "identity")
+ geom_tile(aes(fill = n), color="white") +
+scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
+    scale_x_continuous(position = "top", breaks=daily_homicides$hour_homicide) +
+  ggtitle("Homicides by weekday and time of the day")+
+  labs( #subtitle = "Average rate of growth 1999-2017",
+      caption="Source: INEGI and CONAPO" ,x = "Time", y = "Day") 
+
 
 ```
 
