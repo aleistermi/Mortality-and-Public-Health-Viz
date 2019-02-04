@@ -477,6 +477,7 @@ suicides_rate_plot
 ```
 
 ```{r}
+## Suicide time heatmap####
 daily_suicides<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
 daily_suicides <-  daily_suicides  %>%
   mutate(day_of_suicide=weekdays(as.Date(date_death)))
@@ -509,7 +510,7 @@ p <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide)), aes(hour_suicide, 
  geom_tile(aes(fill = n), color="white") +
 scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
     scale_x_continuous(position = "top", breaks=test_suicides$hour_suicide) +
-  ggtitle("Suicide cases by weekday and time of the day")+
+  ggtitle("Suicide cases occur around midnight all weekdays, and mostly on weekends")+
   labs( #subtitle = "Average rate of growth 1999-2017",
       caption="Source: INEGI and CONAPO" ,x = "Time", y = "Day") 
 p_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=="Female"), aes(hour_suicide, day_of_suicide,  fill=n)) +  
@@ -555,6 +556,36 @@ scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
   ggtitle("Homicides by weekday and time of the day")+
   labs( #subtitle = "Average rate of growth 1999-2017",
       caption="Source: INEGI and CONAPO" ,x = "Time", y = "Day") 
+
+
+```
+
+```{r}
+suicides_by_cohort<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
+suicides_by_cohort<-
+  suicides_by_cohort %>% mutate(age_cohort = case_when(age_years<15 ~ 'less_15',
+                                          age_years>=15 & age_years<35 ~ 'bet_15_35',
+                                          age_years>=35 & age_years<50 ~ 'bet_35_50',
+                                          age_years>=50 & age_years<70 ~ 'bet_50_70',
+                                          age_years>=70 ~ 'more_70'))
+
+suicides_by_cohort_by_sex <-
+  suicides_by_cohort %>% 
+  group_by(age_cohort, sex, year_death) %>% 
+  tally()
+
+suicides_by_cohort_total <-
+  suicides_by_cohort %>% 
+  group_by(age_cohort, year_death) %>% 
+  tally()
+
+
+suicides_by_cohort<-
+  suicides_by_cohort %>% mutate(pop_divide = case_when(ANIO_OCUR<2000 ~ pop_by_cohort$`1995`,
+                                          ANIO_OCUR==2000 & ANIO_OCUR<=2004 ~ pop_by_cohort$`2000`,
+                                          ANIO_OCUR>=2005 & ANIO_OCUR<= 2009 ~ pop_by_cohort$`2005`,
+                                          ANIO_OCUR>=2010 & ANIO_OCUR<= 2014  ~ pop_by_cohort$`2010`, ANIO_OCUR>=2015 ~ pop_by_cohort$`2015`))
+
 
 
 ```
