@@ -611,15 +611,22 @@ suicides_by_cohort_total<-suicides_by_cohort_total %>%
 #                                            age_years>=50 & age_years<70 ~ '50 to 70',
 #                                            age_years>=70 ~ 'More than 70'))
 
-suicides_by_cohort_total<-suicides_by_cohort_total  %>%
-   mutate(identifier = paste(suicides_by_cohort_total$age_cohort, suicides_by_cohort_total$year_merge, sep="-"))
+
 
 final_suicides_by_cohort <- dplyr:: left_join(suicides_by_cohort_total, pop_cohort2,
                                               by=c("age_cohort"="age_cohort", "year_merge"="year_merge"))
+
+final_suicides_by_cohort<-final_suicides_by_cohort  %>%
+   mutate(rate_suicides_bycohort = n/population*100000)
 #   right_join(pop_cohort2, by=c("age_cohort","year_merge")) 
 # df3 <- dplyr::left_join(df1, df2, by=c("name1" = "name3", "name2" = "name4"))
 
 
 ```
 
+```{r}
+cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(age_cohort)), aes(x=year_death, y=rate_suicides_bycohort)) +
+  geom_line() +
+  facet_wrap(~ age_cohort)
+```
 
