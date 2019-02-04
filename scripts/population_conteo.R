@@ -91,6 +91,9 @@ save(irs, file="irs.RData")
 save(gini2010, file = "gini2010.RData")
 save(gini2015, file = "gini2015.RData")
 
-
+path_pop_cohort<-here::here("data", "population_age_cohorts","total_by_cohort.xlsx")
+pop_by_cohort <- read.xlsx(path_pop_cohort, startRow = 1, sheet="clean_data")
+head(pop_by_cohort)
+save(irs, file="pop_by_cohort.RData")
 
                   
