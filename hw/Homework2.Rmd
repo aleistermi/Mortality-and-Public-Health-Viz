@@ -562,12 +562,11 @@ scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
 
 ```{r}
 suicides_by_cohort<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
-suicides_by_cohort<-
-  suicides_by_cohort %>% mutate(age_cohort = case_when(age_years<15 ~ 'less_15',
-                                          age_years>=15 & age_years<35 ~ 'bet_15_35',
-                                          age_years>=35 & age_years<50 ~ 'bet_35_50',
-                                          age_years>=50 & age_years<70 ~ 'bet_50_70',
-                                          age_years>=70 ~ 'more_70'))
+library(reshape2)
+pop_cohort2 <- melt(pop_by_cohort, id=c("cohort"))
+colnames(pop_cohort2)[colnames(pop_cohort2)=="variable"] <- "year_death"
+colnames(pop_cohort2)[colnames(pop_cohort2)=="value"] <- "population"
+colnames(pop_cohort2)[colnames(pop_cohort2)=="cohort"] <- "age_cohort"
 
 suicides_by_cohort_by_sex <-
   suicides_by_cohort %>% 
@@ -579,13 +578,11 @@ suicides_by_cohort_total <-
   group_by(age_cohort, year_death) %>% 
   tally()
 
+suicides_by_cohort_total<-suicides_by_cohort_total  %>%
+  mutate(year_death=as.numeric(suicides_by_cohort_total$year_death))
 
-suicides_by_cohort<-
-  suicides_by_cohort %>% mutate(pop_divide = case_when(ANIO_OCUR<2000 ~ pop_by_cohort$`1995`,
-                                          ANIO_OCUR==2000 & ANIO_OCUR<=2004 ~ pop_by_cohort$`2000`,
-                                          ANIO_OCUR>=2005 & ANIO_OCUR<= 2009 ~ pop_by_cohort$`2005`,
-                                          ANIO_OCUR>=2010 & ANIO_OCUR<= 2014  ~ pop_by_cohort$`2010`, ANIO_OCUR>=2015 ~ pop_by_cohort$`2015`))
-
+final_suicides_by_cohort <- suicides_by_cohort_total %>% 
+  right_join(pop_cohort2, by=c("age_cohort","year_death")) 
 
 
 ```
