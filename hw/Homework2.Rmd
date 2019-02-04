@@ -562,27 +562,62 @@ scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
 
 ```{r}
 suicides_by_cohort<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
+# Let's re arrange the cohort population dataset#
 library(reshape2)
 pop_cohort2 <- melt(pop_by_cohort, id=c("cohort"))
-colnames(pop_cohort2)[colnames(pop_cohort2)=="variable"] <- "year_death"
+colnames(pop_cohort2)[colnames(pop_cohort2)=="variable"] <- "year_merge"
 colnames(pop_cohort2)[colnames(pop_cohort2)=="value"] <- "population"
 colnames(pop_cohort2)[colnames(pop_cohort2)=="cohort"] <- "age_cohort"
+pop_cohort2$year_merge1<-as.numeric(pop_cohort2$year_merge)
+pop_cohort2<-pop_cohort2 %>% 
+  mutate(year_merge1 = case_when(year_merge1==1 ~ 1995,
+                                           year_merge1==2 ~ 2000,
+                                           year_merge1==3 ~ 2005,
+                                           year_merge1==4 ~ 2010,
+                                           year_merge1==5 ~ 2015))
 
-suicides_by_cohort_by_sex <-
-  suicides_by_cohort %>% 
-  group_by(age_cohort, sex, year_death) %>% 
-  tally()
+pop_cohort2$year_merge <- NULL
+colnames(pop_cohort2)[colnames(pop_cohort2)=="year_merge1"] <- "year_merge"
+
+suicides_by_cohort <-suicides_by_cohort %>%  mutate(age_cohort = case_when(age_years<15 ~ 'Less than 15',
+                                           age_years>=15 & age_years<35 ~ '15 to 35',
+                                           age_years>=35 & age_years<50 ~ '35 to 50',
+                                           age_years>=50 & age_years<70 ~ '50 to 70',
+                                           age_years>=70 ~ 'More than 70'))
+
+# suicides_by_cohort_by_sex <-
+#   suicides_by_cohort %>% 
+#   group_by(age_cohort, sex, year_death) %>% 
+#   tally()
 
 suicides_by_cohort_total <-
   suicides_by_cohort %>% 
   group_by(age_cohort, year_death) %>% 
   tally()
 
-suicides_by_cohort_total<-suicides_by_cohort_total  %>%
-  mutate(year_death=as.numeric(suicides_by_cohort_total$year_death))
+suicides_by_cohort_total<-suicides_by_cohort_total %>% 
+  mutate(year_merge = case_when(year_death<2000 ~ 1995,
+                                           year_death>=2000 & year_death<=2004 ~ 2000,
+                                           year_death>=2005 & year_death<= 2009 ~ 2005,
+                                           year_death>=2010 & year_death<= 2015 ~ 2010,
+                                           year_death>2015 ~ 2015))
 
-final_suicides_by_cohort <- suicides_by_cohort_total %>% 
-  right_join(pop_cohort2, by=c("age_cohort","year_death")) 
+# suicides_by_cohort_total<-suicides_by_cohort_total  %>%
+#   mutate(year_merge=as.numeric(as.character(suicides_by_cohort_total$year_merge)))
+#as.numeric(as.character(f))
+# suicides_by_cohort <-suicides_by_cohort %>%  mutate(age_cohort = case_when(age_years<15 ~ 'Less than 15',
+#                                            age_years>=15 & age_years<35 ~ '15 to 35',
+#                                            age_years>=35 & age_years<50 ~ '35 to 50',
+#                                            age_years>=50 & age_years<70 ~ '50 to 70',
+#                                            age_years>=70 ~ 'More than 70'))
+
+suicides_by_cohort_total<-suicides_by_cohort_total  %>%
+   mutate(identifier = paste(suicides_by_cohort_total$age_cohort, suicides_by_cohort_total$year_merge, sep="-"))
+
+final_suicides_by_cohort <- dplyr:: left_join(suicides_by_cohort_total, pop_cohort2,
+                                              by=c("age_cohort"="age_cohort", "year_merge"="year_merge"))
+#   right_join(pop_cohort2, by=c("age_cohort","year_merge")) 
+# df3 <- dplyr::left_join(df1, df2, by=c("name1" = "name3", "name2" = "name4"))
 
 
 ```
