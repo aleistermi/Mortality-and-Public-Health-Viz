@@ -40,8 +40,8 @@ dataset_names<- list('DEFUN17.dbf', 'DEFUN16.dbf', 'DEFUN15.DBF', 'DEFUN14.dbf',
 #                            'DEFUN91.dbf','DEFUN90.dbf')
 
 death_certificates<- data.frame()
-path<-here::here("data", dataset_paths[1], "CAPGPO.dbf")
-CAPGPO<-read.dbf(path, as.is = FALSE)
+pathgpo<-here::here("data", dataset_paths[1], "CAPGPO.dbf")
+CAPGPO<-read.dbf(pathgpo, as.is = FALSE)
 
 i<-1
 #for (element in list(1:19))

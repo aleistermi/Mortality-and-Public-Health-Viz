@@ -1,8 +1,11 @@
-install.packages('here')
+#install.packages('here')
+#install.packages('xlsx', type='source', repos='http://cran.rstudio.com') 
+
 library(here)
 library(haven)
 library(foreign)
-path<-here("data", "municipal_population", "inegi","population_conteo")
+library(openxlsx)
+path<-here::here("data", "municipal_population", "inegi","population_conteo")
 
 
 # path<-here("data", "municipal_population", "pop2000_and_2010.dta")
@@ -16,9 +19,8 @@ path<-here("data", "municipal_population", "inegi","population_conteo")
 # pop2000 %>%
 #   select(yearcenso, municipio,pob)
 
-install.packages('xlsx', type='source', repos='http://cran.rstudio.com') 
-path<-here("data", "inequality_poverty","gini.xlsx")
-library(openxlsx)
+path<-here::here("data", "inequality_poverty","gini.xlsx")
+
 gini2010 <- read.xlsx(path, sheet = "2010")
 gini2015 <- read.xlsx(path, sheet = "2015")
 
@@ -43,7 +45,7 @@ gini2015 <- read.xlsx(path, sheet = "2015")
   
   ###### REZAGO #########
   
-  path<-here("data", "inequality_poverty","IRS_2000_2015_vf.xlsx")
+  path<-here::here("data", "inequality_poverty","IRS_2000_2015_vf.xlsx")
   irs <- read.xlsx(path, sheet = "Municipios", startRow = 5)
   colnames(irs)[5] <- "pop2000"
   colnames(irs)[6] <- "pop2005"
@@ -86,8 +88,8 @@ irs$irs10<-as.numeric(irs$irs10)
 irs$irs15<-as.numeric(irs$irs15) 
 
 save(irs, file="irs.RData")
-save(gini2010, file = "gini10.RData")
-save(gini2015, file = "gini15.RData")
+save(gini2010, file = "gini2010.RData")
+save(gini2015, file = "gini2015.RData")
 
 
 
