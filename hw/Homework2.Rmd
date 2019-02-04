@@ -620,13 +620,101 @@ final_suicides_by_cohort<-final_suicides_by_cohort  %>%
    mutate(rate_suicides_bycohort = n/population*100000)
 #   right_join(pop_cohort2, by=c("age_cohort","year_merge")) 
 # df3 <- dplyr::left_join(df1, df2, by=c("name1" = "name3", "name2" = "name4"))
-
+final_suicides_by_cohort$ordered_cohort <- factor(final_suicides_by_cohort$age_cohort, levels = c("Less than 15", "15 to 35", "35 to 50", "50 to 70", "More than 70"))
 
 ```
 
 ```{r}
-cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(age_cohort)), aes(x=year_death, y=rate_suicides_bycohort)) +
-  geom_line() +
-  facet_wrap(~ age_cohort)
+cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(ordered_cohort) & ordered_cohort!="Less than 15"), aes(x=year_death, y=rate_suicides_bycohort)) +
+  geom_step() +
+  facet_wrap(~ ordered_cohort)+
+  ggtitle("Suicides are ramping up among young population")+
+  labs( subtitle = "Rates of suicides by age cohort",
+      caption="Source: INEGI and CONAPO" ,x = "Year", y = "Rate/100K") 
+  
+
+```
+
+```{r}
+## Colors and Palettes ####
+RED:
+#ff3333
+#ff4747
+#ff5b5b
+#ff7070
+#ff8484
+#ff9999
+
+BLUE:
+#0071b6
+#197fbd
+#328dc4
+#4c9bcb
+#66a9d3
+#7fb8da
+#99c6e1
+
+GREEN:
+#318333
+#458f47
+#5a9b5b
+#6ea870
+#83b484
+#98c199
+ORANGE:
+
+#e19509
+#e49f21
+#e7aa3a
+#eab452
+#edbf6b
+#f0ca84
+
+grey
+#808080
+#8c8c8c
+#999999
+#a6a6a6
+#b2b2b2
+#bfbfbf
+
+ami_colors <- c(
+  `red`        = "#ff3333", 
+  `green`      = "#318333",
+  `blue`       = '#2171b5',
+  `orange`     = "#e19509",
+  `light grey` = "#a6a6a6",
+  `dark grey`  = "#808080")
+
+ami_cols <- function(...) {
+  cols <- c(...)
+
+  if (is.null(cols))
+    return (ami_colors)
+
+  ami_colors[cols]
+}
+
+####
+ami_palettes <- list(
+  `redish`  = ami_cols('red', 'orange'),
+
+  `cool`  = ami_cols('blue', 'green'),
+
+  `grey`   = ami_cols("dark_grey"),
+
+  `blue` = ami_cols("blue"),
+
+  `red`  = ami_cols("red")
+)
+
+ami_pal <- function(palette = "main", reverse = FALSE, ...) {
+  pal <- ami_palettes[[palette]]
+
+  if (reverse) pal <- rev(pal)
+
+  colorRampPalette(pal, ...)
+}
+
 ```
 
