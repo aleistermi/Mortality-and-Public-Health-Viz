@@ -452,25 +452,63 @@ mean_suicide<-mean_suicide  %>%
   mutate(rank15=as.numeric(rank15))
 
 suicides_rate_plot <- ggplot(subset(mean_suicide, mean_suicide$pop2015.x<100000), aes(x=pop2015.x, y=diff_perc_rate))+  # rate_suic_15
- geom_hex(bins = 30, alpha=.95) + 
+ geom_point(bins = 30, alpha=.95) + 
   
   ggtitle("3B1. Smaller and Rural Municipalities have the largest \nsuicides rates in the country")+
   labs( subtitle = "(Rate of Suicides per 100K inhabitants)",
       caption="Source: INEGI and CONAPO,Sample limited to n\ population<100,000 and suicide rate<100", x = "Population", y = "Annual Rate (per 100k)") +
        theme(plot.title = element_text(lineheight=.8, face="bold"))
 
-suicides_ratechange_plot <- ggplot(mean_suicide, aes(x=pop2015.x, y=rate_suic_15))+ geom_hex(bins = 20, alpha=.95)+
+scaleFUN <- function(x) sprintf("%.2f", x)
+
+suicides_ratechange_plot <- ggplot(subset(mean_suicide, pop2015.x<100000), aes(x=pop2015.x, y=rate_suic_15, color=state_name))+ geom_point(bins = 20, alpha=1/10)+
   ggtitle("3B2. Smaller and Rural Municipalities also show the largest rate of \n growth in the last 20 years")+
   labs( subtitle = "Average rate of growth 1999-2017",
-      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Rate (%)") +
-       theme(plot.title = element_text(lineheight=.8, face="bold"))
-
-
-suicides_rate_plot
+      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Rate (%)") 
+  #      theme(plot.title = element_text(lineheight=.8, face="bold")) +
+  # scale_x_continuous(trans='log',name ="logpopulation", labels=scaleFUN) 
 suicides_ratechange_plot
+
+#geom_hex
+suicides_rate_plot
+#suicides_ratechange_plot
 
 
 ```
 
+```{r}
+daily_suicides<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
+
+daily_suicides <-  daily_suicides  %>%
+  mutate(day_of_suicide=weekdays(as.Date(date_death)))
+
+
+daily_suicides$numeric_time<- as.POSIXct(daily_suicides$time_death, format = "%H:%M:%S")
+daily_suicides$hour_suicide <- hour(daily_suicides$numeric_time)
+
+test_suicides <-
+  daily_suicides %>% 
+  group_by(hour_suicide, day_of_suicide) %>% 
+  tally()
+suicides_time <- ggplot(test %>% filter(!is.na(day_of_suicide)), aes(x=hour, y=day_of_suicide)) + 
+  geom_point() 
++ 
+  scale_y_datetime(date_labels = "%H:%M", date_breaks = "1 hour")
+test_suicides$day_of_suicide <- factor(test_suicides$day_of_suicide, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+                                                      
+
+#(aes(fill = n),colour = "white") + scale_fill_gradient(low = "white",high = "darkblue")
+#+ stat_density(aes(fill = stat(density)), geom = "raster", position = "identity") +
+
+p <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide)), aes(hour_suicide, day_of_suicide,  fill=n)) +  
+  # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
+  # #geom_raster() +
+  #geom_raster() 
+ #stat_density(aes(fill = stat(density)), geom = "raster", position = "identity")
+ geom_tile(aes(fill = n), color="white") +
+scale_fill_gradient2(high = "darkred")
+
+```
 
 
