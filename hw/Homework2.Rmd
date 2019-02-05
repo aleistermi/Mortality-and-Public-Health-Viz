@@ -519,7 +519,9 @@ p_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=="Femal
   #geom_raster() 
  #stat_density(aes(fill = stat(density)), geom = "raster", position = "identity")
  geom_tile(aes(fill = n), color="white") +
-scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
+    scale_color_ami(discrete = TRUE, palette = "redish")  +
+  # scale_fill_ami(discrete=TRUE,palette = "redish", guide = "none") +
+#scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
     scale_x_continuous(position = "top", breaks=test_suicides$hour_suicide) +
   ggtitle("Suicide cases by weekday and time of the day")+
   labs( #subtitle = "Average rate of growth 1999-2017",
@@ -543,7 +545,7 @@ daily_homicides <-
 # + 
 #   scale_y_datetime(date_labels = "%H:%M", date_breaks = "1 hour")
 
-daily_homicides$day_of_homicide <- factor(daily_homicides$day_of_homicide, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+daily_homicides$day_of_homicide <- factor(daily_homicides$day_of_homicide, levels = c("Sunday",  'Saturday', 'Friday', "Thursday",  "Wednesday", "Tuesday", "Monday" ))
 
 p_hom <- ggplot(daily_homicides %>% filter(!is.na(day_of_homicide)), aes(hour_homicide, day_of_homicide,  fill=n)) +  
   # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
@@ -637,7 +639,7 @@ cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(ordered_cohort) & 
 
 ```{r}
 ## Colors and Palettes ####
-RED:
+# RED:
 #ff3333
 #ff4747
 #ff5b5b
@@ -645,7 +647,7 @@ RED:
 #ff8484
 #ff9999
 
-BLUE:
+# BLUE:
 #0071b6
 #197fbd
 #328dc4
@@ -654,14 +656,15 @@ BLUE:
 #7fb8da
 #99c6e1
 
-GREEN:
+# GREEN:
 #318333
 #458f47
 #5a9b5b
 #6ea870
 #83b484
 #98c199
-ORANGE:
+
+#ORANGE:
 
 #e19509
 #e49f21
@@ -669,8 +672,7 @@ ORANGE:
 #eab452
 #edbf6b
 #f0ca84
-
-grey
+#grey
 #808080
 #8c8c8c
 #999999
@@ -682,8 +684,9 @@ ami_colors <- c(
   `red`        = "#ff3333", 
   `green`      = "#318333",
   `blue`       = '#2171b5',
+  `light_blue`   = '#eff3ff',
   `orange`     = "#e19509",
-  `light grey` = "#a6a6a6",
+  `light grey` = "#f7f7f7",
   `dark grey`  = "#808080")
 
 ami_cols <- function(...) {
@@ -708,13 +711,86 @@ ami_palettes <- list(
   `red`  = ami_cols("red")
 )
 
-ami_pal <- function(palette = "main", reverse = FALSE, ...) {
+ami_pal <- function(palette = "cool", reverse = FALSE, ...) {
   pal <- ami_palettes[[palette]]
 
   if (reverse) pal <- rev(pal)
 
   colorRampPalette(pal, ...)
 }
+
+scale_color_ami <- function(palette = "cool", discrete = TRUE, reverse = FALSE, ...) {
+  
+  pal <- ami_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("colour", paste0("ami_", palette), palette = pal, ...)
+  } else {
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
+scale_fill_ami <- function(palette = "main", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- ami_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("fill", paste0("ami_", palette), palette = pal, ...)
+  } else {
+    scale_fill_gradient2(colours = pal(256), ...)
+  }
+}
+install.packages("extrafont")
+
+library(extrafont)
+font_import()
+load(fonts)
+```
+
+```{r}
+homicide_plot+
+  theme(
+  panel.background = element_rect(fill = 'white',
+                                colour = ami_cols("light grey"),
+                                size = 0.3, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.3, linetype = 'solid',
+                                colour = ami_cols("dark grey")), 
+  panel.grid.minor = element_line(size = 0.2, linetype = 'dashed',
+                                colour = "dark grey")) +
+  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
+  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
+    theme(text=element_text(family="Georgia"))+
+     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
+    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
+        theme(legend.key=element_rect(fill="white", colour="white")) +
+  theme(plot.caption = element_text(family="Georgia-Italic", size=6) +
+          scale_color_manual( ami_cols("green"))
+)
+```
+
+
+```{r}
+theme<- theme(element_line(colour = "blue", size = 6, linetype = "solid",
+  lineend = round), rect, text, title, aspect.ratio, axis.title, axis.title.x,
+  axis.title.x.top, axis.title.x.bottom, axis.title.y, axis.title.y.left,
+  axis.title.y.right, axis.text, axis.text.x, axis.text.x.top,
+  axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right,
+  axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom,
+  axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right, axis.ticks.length,
+  axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y,
+  axis.line.y.left, axis.line.y.right, legend.background, legend.margin,
+  legend.spacing, legend.spacing.x, legend.spacing.y, legend.key,
+  legend.key.size, legend.key.height, legend.key.width, legend.text,
+  legend.text.align, legend.title, legend.title.align, legend.position,
+  legend.direction, legend.justification, legend.box, legend.box.just,
+  legend.box.margin, legend.box.background, legend.box.spacing,
+  panel.background, panel.border, panel.spacing, panel.spacing.x,
+  panel.spacing.y, panel.grid, panel.grid.major, panel.grid.minor,
+  panel.grid.major.x, panel.grid.major.y, panel.grid.minor.x,
+  panel.grid.minor.y, panel.ontop, plot.background, plot.title,
+  plot.subtitle, plot.caption, plot.tag, plot.tag.position, plot.margin,
+  strip.background, strip.background.x, strip.background.y,
+  strip.placement, strip.text, strip.text.x, strip.text.y,
+  strip.switch.pad.grid, strip.switch.pad.wrap, ..., complete = FALSE,
+  validate = TRUE)
 
 ```
 
