@@ -177,21 +177,8 @@ In the last 12 years, scholars and policy makers have paid special attention to 
 ### A. Total Deaths
 
 Chart 1 shows the trend in the overall pattern of mortality in Mexico. It is interesing to note that there is a smooth increase in mortality rates starting in 2005, one year before the so called war on drugs was implemented by former President Felipe Calderon. We can distinguish a period in which monthly mortality rates fluctuated around 30, and then there is a smooth jump above 30.
-```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
-## TOTAL ####
-total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_rate)) +
-  geom_line(color=ami_cols("green"))  +
-  stat_smooth(
-    color = ami_cols("red"), alpha=.04,
-    method = "loess", se = FALSE) +
-    ylim(25, 40) +
-      labs(title = "1A. Monthly Mortality Rate in Mexico 1998-2017",
-       subtitle = "Total deaths rate trend shows is increasing, probably driven by the grow in the homicides-rate",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
-       x = "Year", y = "Monthly Rate (per 100k)")  +
-  geom_vline(xintercept =2006.917 , linetype="dotted", 
-                color = "red", size=1)+ 
-    geom_text(aes(x=2007.1, label="War on drugs starts", y=10), colour="red", hjust = 0) +
+```{r theme}
+theme_ami<-
   theme(
   panel.background = element_rect(fill = 'white',
                                 colour = ami_cols("light grey"),
@@ -200,15 +187,81 @@ total_rate_plot=ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_ra
                                 colour = ami_cols("light grey")), 
   panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
                                 colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
+  theme(plot.title = element_text(size = 14, family = "Karla"))+
+  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain"))+
+    theme(text=element_text(family="Karla"))+
+     theme( axis.text.x=element_text(colour="black", family = "Karla", size = 10, face = "plain"))+
+    theme (axis.text.y=element_text(colour="black", family = "Karla", size = 10, face = "plain"))+
         theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
-  
+  theme(plot.caption = element_text(family="Karla", size=7)) +
+  theme(text = element_text(family = "Karla"))
+#devtools::install_github("yixuan/showtext")
+
+
 ```
+
+```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
+## TOTAL ####
+total_rate_plot = ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_rate)) +
+  geom_line(color=ami_cols("green"))  + geom_text()
+  stat_smooth(alpha=.04,
+    method = "loess", se = FALSE, color= ami_cols("orange"), size=.5 ) +
+    ylim(25, 40) +
+      labs(title = "1A. Monthly Mortality Rate in Mexico 1998-2017",
+       subtitle = "Total deaths rate trend shows is increasing, probably driven by the grow in the homicides-rate",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Year", y = "Monthly Rate (per 100k)", family='Dosis-SemiBold')  +
+  geom_vline(xintercept =2006.917 , linetype="dotted", 
+                color = ami_cols("orange"), size=.5)+ 
+    geom_text(aes(x=2007.1, label="War on drugs starts", y=28, family="Dosis"), colour=ami_cols("orange"), hjust = 0) 
+ #theme_ami
+```
+```{r}
+p1 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
+    annotate("text", 1, 1.15, label = "Karla es esta que obno",
+             family = "Karla", size = 5) +
+    annotate("text", 1, 1.1, label = "NanumGothic",
+             family = "NanumGothic", size = 5) +
+    annotate("text", 1, 1.05, label = "MerriweatherSans-BoldItalic",
+             family = "MerriweatherSans-BoldItalic", size = 5) +    
+    annotate("text", 1, 1, label = "HindSiliguri-Regular",
+             family = "HindSiliguri-Regular", size = 5) +     
+    annotate("text", 1, .94, label = "Dosis-Regular",
+             family = "Dosis-Regular", size = 5) +
+    annotate("text", 1, .90, label = "Assistant-Regular",
+             family = "Assistant-Regular", size = 5) +
+    annotate("text", 1, .86, label = "Arvo",
+             family = "Arvo", size = 5) +
+    annotate("text", 1, .82, label = "Wingdings-Regular",
+             family = "Wingdings-Regular", size = 5) +
+  theme(axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text  = element_blank())
+
+p2 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
+    annotate("text", 1, 1.15, label = "Advent Pro",
+             family = "Advent Pro", size = 5) +
+    annotate("text", 1, 1.1, label = "IBM Plex Mono" ,
+             family = "IBM Plex Mono" , size = 5) +
+    annotate("text", 1, 1.05, label = "Economica",
+             family = "Economica", size = 5) +    
+    annotate("text", 1, 1, label = "Alegreya Sans",
+             family = "Alegreya Sans", size = 5) +     
+    annotate("text", 1, .94, label = "Cabin Condensed",
+             family = "Cabin Condensed", size = 5) +
+    annotate("text", 1, .90, label = "Hind Guntur",
+             family = "Hind Guntur", size = 5) +
+    annotate("text", 1, .86, label = "Domine"  ,
+             family = "Domine"  , size = 5) +
+    annotate("text", 1, .82, label = "Impact",
+             family = "Impact", size = 5) +
+  theme(axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text  = element_blank())
+# font_import(paths = here("fonts (1)")) 
+#loadfonts() advent pro economica o karla
+```
+
 
 ### B. Natural Deaths
 
