@@ -187,7 +187,7 @@ theme_ami<-
                                 colour = ami_cols("light grey")), 
   panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
                                 colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Karla"))+
+  theme(plot.title = element_text(size = 14, family = "Karla", face='bold'))+
   theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain"))+
     theme(text=element_text(family="Karla"))+
      theme( axis.text.x=element_text(colour="black", family = "Karla", size = 10, face = "plain"))+
@@ -195,7 +195,6 @@ theme_ami<-
         theme(legend.key=element_rect(fill="white", colour="white")) +
   theme(plot.caption = element_text(family="Karla", size=7)) +
   theme(text = element_text(family = "Karla"))
-#devtools::install_github("yixuan/showtext")
 
 
 ```
@@ -203,28 +202,30 @@ theme_ami<-
 ```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## TOTAL ####
 total_rate_plot = ggplot(TOTAL_monthly_death_national, aes(x=yearmonth, y=death_rate)) +
-  geom_line(color=ami_cols("green"))  + geom_text()
+  geom_line(color=ami_cols("green"))  + 
+
   stat_smooth(alpha=.04,
     method = "loess", se = FALSE, color= ami_cols("orange"), size=.5 ) +
     ylim(25, 40) +
       labs(title = "1A. Monthly Mortality Rate in Mexico 1998-2017",
        subtitle = "Total deaths rate trend shows is increasing, probably driven by the grow in the homicides-rate",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
-       x = "Year", y = "Monthly Rate (per 100k)", family='Dosis-SemiBold')  +
+       x = "Year", y = "Monthly Rate (per 100k)")  +
   geom_vline(xintercept =2006.917 , linetype="dotted", 
                 color = ami_cols("orange"), size=.5)+ 
-    geom_text(aes(x=2007.1, label="War on drugs starts", y=28, family="Dosis"), colour=ami_cols("orange"), hjust = 0) 
- #theme_ami
+    geom_text(aes(x=2007.1, label="War on drugs starts", y=28, family="Karla"), colour=ami_cols("orange"), hjust = 0) +
+  theme_ami
 ```
+
 ```{r}
 p1 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
-    annotate("text", 1, 1.15, label = "Karla es esta que obno",
+    annotate("text", 1, 1.0, label = "Karla es esta que obno",
              family = "Karla", size = 5) +
     annotate("text", 1, 1.1, label = "NanumGothic",
              family = "NanumGothic", size = 5) +
     annotate("text", 1, 1.05, label = "MerriweatherSans-BoldItalic",
              family = "MerriweatherSans-BoldItalic", size = 5) +    
-    annotate("text", 1, 1, label = "HindSiliguri-Regular",
+    annotate("text", 1, 1.3, label = "HindSiliguri-Regular",
              family = "HindSiliguri-Regular", size = 5) +     
     annotate("text", 1, .94, label = "Dosis-Regular",
              family = "Dosis-Regular", size = 5) +
@@ -253,13 +254,13 @@ p2 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
              family = "Hind Guntur", size = 5) +
     annotate("text", 1, .86, label = "Domine"  ,
              family = "Domine"  , size = 5) +
-    annotate("text", 1, .82, label = "Impact",
-             family = "Impact", size = 5) +
+    annotate("text", 1, .82, label = "Advent Pro Medium",
+             family = "Advent Pro Medium", size = 5) +
   theme(axis.title = element_blank(),
           axis.ticks = element_blank(),
           axis.text  = element_blank())
 # font_import(paths = here("fonts (1)")) 
-#loadfonts() advent pro economica o karla
+#loadfonts() advent pro economica o karla ("Advent Pro", "IBM Plex Mono", "Economica", "Alegreya Sans", "Cabin Condensed", "Hind Guntur", "Domine")
 ```
 
 
@@ -277,24 +278,9 @@ natural_death_plot = ggplot(subset(monthly_death_national,natural== 1 ), aes(x=y
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   stat_smooth(
-    color = "#FC4E07", alpha=.02,
-    method = "loess", se = FALSE) +
-  xlab("") +
-  theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+   method = "loess", se = FALSE, color= ami_cols("orange"), size=.5) +
+  xlab("") + 
+  theme_ami
 ```
 
 ### C. Suicides
@@ -313,21 +299,7 @@ suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Sui
        subtitle = "Suicides rate have increased in the last 20 years. On average, they have doubled, whereas in\nthe rest of the world, the opposite trend persists",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
-  theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+  theme_ami
 ```
 
 ### D. Accidents
@@ -347,23 +319,10 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   geom_vline(xintercept =2001 , linetype="dotted", 
-                color = "red", size=1) + 
-  geom_text(aes(x=2001.2, label="December 2000: maximum \nmonthly rate in 20 years (4.8)", y=2.5), colour="red", hjust = 0) +
-theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+                color = ami_cols("orange"), size=1) + 
+  geom_text(aes(x=2001.2, label="December 2000: maximum \nmonthly rate in 20 years (4.8)", y=2.5), colour=ami_cols("orange"), hjust = 0) +
+theme_ami
+        
 ```
 
 ### E. Homicides
@@ -377,27 +336,13 @@ homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Ho
   geom_line(color=ami_cols("green"))  +
   ylab('Monthly Rate') +
   geom_vline(xintercept =2006.917 , linetype="dotted", 
-                color = "red", size=1)+ 
-    geom_text(aes(x=2007.0, label="War on drugs starts", y=.20), colour="red", hjust = 0) +
-labs(title = "1E. Homicides rate: an upward trend that doesn't give up",
+                color = ami_cols("orange"), size=1)+ 
+    geom_text(aes(x=2007.0, label="War on drugs starts", y=.20), colour=ami_cols("orange"), hjust = 0) +
+labs(title = "1E. Homicides rate: an upward trend",
        subtitle = "After a substantive decrease between 2011-2015, homicides rate shows a sharp upward trend",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")+
-theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia")) +
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+theme_ami
 ```
 
 ### F. War operations related deaths
@@ -410,33 +355,19 @@ war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Ope
   ylab('Monthly Rate') +
   geom_line(color=ami_cols("green"))  +
   stat_smooth(
-    color = ami_cols("red"), alpha=.04,
+    color = ami_cols("orange"), alpha=.04,
     method = "loess", se = FALSE) +
   geom_vline(xintercept =2010.417, linetype="dotted", 
-                color = "red", size=1)+
+                color = ami_cols("orange"), size=1)+
    geom_vline(xintercept =2015.083, linetype="dotted", 
-                color = "red", size=1)+ 
-  geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour="red") +
+                color = ami_cols("orange"), size=1)+ 
+  geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour=ami_cols("orange")) +
     labs(title = "1F. War operations: the costs of decreasing the homicides rate?",
-       subtitle = "Deaths in this category show a greater variability and levels between 2011 and 2015, \na coincident period with the temporal drop in homicides",
+       subtitle = "Deaths show a greater variance and levels between 2011 and 2015, \na coincident period with the temporal drop in homicides",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   
-theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia")) +
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+theme_ami
 
 ```
 
@@ -450,30 +381,16 @@ dn_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Don't kn
   ylim(0.1, .5) +
   ylab('Monthly Rate') +
   geom_line(color=ami_cols("green"))  +
- geom_text(aes(x=2012.8, label="Decrease in \n homicides", y=.18), colour=ami_cols("red")) +
+ geom_text(aes(x=2012.8, label="Decrease in \n homicides", y=.18), colour=ami_cols("orange")) +
   geom_vline(xintercept =2010.417, linetype="dotted", 
-                color = "red", size=1)+
+                color = ami_cols("orange"), size=1)+
    geom_vline(xintercept =2015.083, linetype="dotted", 
-                color = "red", size=1)+
+                color = ami_cols("orange"), size=1)+
     labs(title = "1G. State's inability to produce vital stats",
        subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing \nlack of State capacity to classify deaths",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
-theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia")) +
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+theme_ami
 ```
 
 ## 2. Causes of death
@@ -532,22 +449,8 @@ causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=
   labs(title = "2. Principal Male Mortality Causes in Mexico by Age",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Age", y = "%") +
-       theme(plot.title = element_text(lineheight=.8, face="bold"))+
-theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia")) +
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+       theme(plot.title = element_text(lineheight=.8, face="bold")) +
+theme_ami
 ```
 
 ## 3. Suicides
@@ -590,23 +493,7 @@ plot_ages_male <- ggplot(data = suicides_male,
     labs(x = "Age", y = NULL,
          title = "3A1. Age Distribution of\n Male Suicide Cases in Mexico 1998-2017") +
     theme_ridges() +
-    theme(title = element_text(size = 16, face = "bold"))
-plot_ages_male + 
-theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia")) +
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+    theme_ami
 ##females####
 plot_ages_female <- ggplot(data = suicides_female,
             mapping = aes(x = age_years, y = factor((year_death)),
@@ -671,21 +558,20 @@ suicides_rate_plot <- ggplot(subset(mean_suicide, mean_suicide$pop2015.x<100000)
   ggtitle("3B1. Smaller and Rural Municipalities have the largest \nsuicides rates in the country")+
   labs( subtitle = "(Rate of Suicides per 100K inhabitants)",
       caption="Source: INEGI and CONAPO,Sample limited to n\ population<100,000 and suicide rate<100", x = "Population", y = "Annual Rate (per 100k)") +
-       theme(plot.title = element_text(lineheight=.8, face="bold"))
+      theme_ami
+
 
 scaleFUN <- function(x) sprintf("%.2f", x)
 
-suicides_ratechange_plot <- ggplot(subset(mean_suicide, pop2015.x<100000), aes(x=pop2015.x, y=rate_suic_15, color=state_name))+ geom_point(bins = 20, alpha=1/10)+
+suicides_ratechange_plot <- ggplot(subset(mean_suicide, rate_suic_15>=12), aes(x=pop2015.x, y=rate_suic_15))+ geom_jitter(bins = 20, size=1)+
   ggtitle("3B2. Smaller and Rural Municipalities also show the largest rate of \n growth in the last 20 years")+
   labs( subtitle = "Average rate of growth 1999-2017",
-      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Rate (%)") 
+      caption="Source: INEGI and CONAPO" ,x = "Population", y = "Rate (%)") +
   #      theme(plot.title = element_text(lineheight=.8, face="bold")) +
   # scale_x_continuous(trans='log',name ="logpopulation", labels=scaleFUN) 
-suicides_ratechange_plot
+theme_ami
 
-#geom_hex
-suicides_rate_plot
-#suicides_ratechange_plot
+
 
 
 ```
@@ -708,7 +594,7 @@ test_suicides <-
 test_suicides$day_of_suicide <- factor(test_suicides$day_of_suicide, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
 ## Male Plot ####
-p_male <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=='Male'), aes(hour_suicide, day_of_suicide,  fill=n)) +  
+heat_map_suicide_male <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=='Male'), aes(hour_suicide, day_of_suicide,  fill=n)) +  
   # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
   # #geom_raster() +
   #geom_raster() 
@@ -720,25 +606,12 @@ p_male <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=='Male'),
   labs( #subtitle = "Average rate of growth 1999-2017",
       caption="Source: INEGI and CONAPO" ,x = "Time", y="") +
   labs(fill = "# Male Suicides")+
-  theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 7, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+  theme_ami +
+  theme(  axis.text.x=element_text( size = 6.5, family="Karla", face = "plain"))
   
 ## Female Plot ####
 
-p_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=="Female"), aes(hour_suicide, day_of_suicide,  fill=n)) +  
+heat_map_suicide_male <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=="Female"), aes(hour_suicide, day_of_suicide,  fill=n)) +  
   # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
   # #geom_raster() +
   #geom_raster() 
@@ -752,21 +625,9 @@ p_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & sex=="Femal
   labs( #subtitle = "Average rate of growth 1999-2017",
       caption="Source: INEGI and CONAPO" ,x = "Time", y="") +
   labs(fill = "# Female Suicides") +
-  theme(
-  panel.background = element_rect(fill = 'white',
-                                colour = ami_cols("light grey"),
-                                size = 0.3, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-                                colour = ami_cols("light grey")), 
-  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-                                colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 7, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
+   theme_ami +
+  theme(  axis.text.x=element_text( size = 6.5, family="Karla", face = "plain"))
+  
   
 ## HOMICIDES########
 # daily_homicides<-death_certificates[which(death_certificates$non_natural_causes=="Homicide"),] 
@@ -876,14 +737,7 @@ cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(ordered_cohort) & 
                                 colour = ami_cols("light grey")), 
   panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
                                 colour = "dark grey")) +
-  theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-  theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-    theme(text=element_text(family="Georgia"))+
-     theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-    theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Georgia", size=7))
-  
+  theme_ami
 
 ```
 
