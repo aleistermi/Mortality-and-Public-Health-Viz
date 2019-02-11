@@ -200,10 +200,16 @@ theme_ami<-
     theme (axis.text.y=element_text(colour="black", family = "Karla", size = 10, face = "plain"))+
         theme(legend.key=element_rect(fill="white", colour="white")) +
   theme(plot.caption = element_text(family="Karla", size=7)) +
-  theme(text = element_text(family = "Karla"))+
+  theme(text = element_text(family = "Karla")) +
   theme(line = element_line(color=ami_cols("green"))) 
   
-
+theme_amiplots<- theme(plot.title = element_text(size = 14, family = "Karla", face='bold'))+
+  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain"))+
+    theme(text=element_text(family="Karla"))+
+        theme(legend.key=element_rect(fill="white", colour="white")) +
+  theme(plot.caption = element_text(family="Karla", size=7)) +
+  theme(text = element_text(family = "Karla")) +
+  theme(line = element_line(color=ami_cols("green"))) 
 
 ```
 
@@ -420,7 +426,8 @@ ami_palettes <- list(
 
   `blue` = ami_cols("blue"),
 
-  `red`  = ami_cols("red")
+  `red`  = ami_cols("red"),
+  `green_orange`  = ami_cols("green", "orange")
 )
 
 ami_pal <- function(palette = "cool", reverse = FALSE, ...) {
@@ -919,29 +926,96 @@ library("ggplot2")
 library("here")
 library("dplyr")
 
+
+#rm(list = ls())
+k<-100000
+
+
+## States ####
+suicides_state_yearly <-
+  filter(death_certificates, non_natural_causes== 'Suicide') %>% 
+  group_by(state_ocur, ANIO_OCUR) %>% 
+  tally()
+state_population<- irs %>%
+  group_by(cve_edo) %>%
+  summarize(tot00 = sum(pop2000, na.rm = TRUE),
+            tot05 = sum(pop2005, na.rm = TRUE),
+            tot10=sum(pop2010, na.rm=TRUE),
+            tot15=sum(pop2015, na.rm=TRUE))
+
+## Have to do this because there is no single ID (as compared to municipal data)
+suicides_state_yearly<-suicides_state_yearly %>% 
+  mutate(year_merge = case_when(ANIO_OCUR<2000 ~ "tot00",
+                                           ANIO_OCUR>=2000 & ANIO_OCUR<=2004 ~ "tot00",
+                                           ANIO_OCUR>=2005 & ANIO_OCUR<= 2009 ~ "tot05",
+                                           ANIO_OCUR>=2010 & ANIO_OCUR<= 2015 ~ "tot10",
+                                           ANIO_OCUR>2015 ~ "tot15"))
+
+state_population<-melt(state_population, id=c("cve_edo"))
+
+suicides_state_yearly <- dplyr:: left_join(suicides_state_yearly, state_population,by=c("state_ocur"="cve_edo", "year_merge"="variable"))
+#rm(death_certificates)
+suicides_state_yearly<-suicides_state_yearly %>% 
+  mutate(rate = n/value*k)
+head(suicides_state_yearly)
+
+state_average_suicide<-suicides_state_yearly%>%
+  group_by(state_ocur) %>%
+  summarise_at(vars(rate), funs(mean(., na.rm=TRUE)))
+state_average_suicide<-state_average_suicide[which(state_average_suicide$state_ocur!= 99 & state_average_suicide$state_ocur!=33 & state_average_suicide$state_ocur!=35),]
+
+## PLOT THE HEXBINS ####
+df_mx_state<- select (df_mxstate, c(region, state_name, state_name_official, state_abbr,pop))
+head(df_mx_state)
+df_mx_state<-merge(x=df_mx_state, y=state_average_suicide, by.x='region', by.y="state_ocur")
+
+colnames(df_mx_state)[colnames(df_mx_state)=="rate"] <- "value"
+
+library("mxmaps")
+library("viridis")
+library("scales")
+
+state_suicide_rate_plot<- mxhexbin_choropleth(df_mx_state, num_colors = 1) +
+  scale_fill_gradient("Rate",low=ami_cols("green"), high = ami_cols("orange")) +
+   labs(title = "Average Suicide Rate 1998-2017",
+       subtitle = "Southeastern states show the higher suicide rates",
+       caption = "Source: INEGI, CONAPO and https://www.diegovalle.net/")+
+  
+  
+ theme(plot.title = element_text(size = 14, family = "Karla", face='bold')) +
+  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain")) + 
+    theme(text=element_text(family="Karla")) +
+        theme(legend.key=element_rect(fill="white", colour="white")) +
+  theme(plot.caption = element_text(family="Karla", size=7)) 
+
+
+
+### MUNICIPAL SUICIDES ####
+
 load(here("Data/Shape_Mun/Municipios.shp"))
 
 mun_shape <- st_read(here("Data/muni_2012gw/Muni_2012gw.shp"))
+state_shape<- st_read(here("Data/state_boundaries/State.shp"))
+state_shape2<- st_read(here("data/state_boundaries/dest_2015gw/dest_2015gw.shp"))
 path = here("death_certificates.RData")
 print(path)
 data = load(path)
-#rm(list = ls())
 suicides_municipal_yearly <-
   filter(death_certificates, non_natural_causes== 'Suicide') %>% 
   group_by(state_mun_OCUR, ANIO_OCUR) %>% 
   tally()
-rm(death_certificates)
+
 suicides_municipal_yearly<- merge(x = suicides_municipal_yearly, y = irs, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
 
 suicides_municipal_yearly<-  select (suicides_municipal_yearly,c(state_mun_OCUR, "ANIO_OCUR", "n", "cve_edo","state_name",  "municipal_name", "pop2000", "pop2005", "pop2010", "pop2015"))
 
-k<-100000
+
 suicides_municipal_yearly<- suicides_municipal_yearly %>% 
   mutate(rate= case_when(ANIO_OCUR<=2002 ~ n/(as.numeric(pop2000))*k,    ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ (n/as.numeric(pop2005))*k, 
                                           ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ (n/as.numeric(pop2010))*k,
                                           ANIO_OCUR>2013 ~ (n/as.numeric(pop2015))*k), na.rm = TRUE)
 
-rate_suicides_17 <- subset(suicides_municipal_yearly, ANIO_OCUR==2017)
+#rate_suicides_17 <- subset(suicides_municipal_yearly, ANIO_OCUR==2017)
 
 municipal_average_suicide<-suicides_municipal_yearly%>%
   group_by(state_mun_OCUR, municipal_name, cve_edo, state_name) %>%
@@ -953,9 +1027,34 @@ mun_shape<- mun_shape %>%
 mun_shape = mun_shape %>% 
     left_join(municipal_average_suicide, by = "state_mun_OCUR")  
 
-maptry<-ggplot(data = mun_shape ) +
-  geom_sf(aes(fill = rate))
+mun_shape<- mun_shape %>%
+  mutate(rate_cut = cut(mun_shape$rate, c(0,16,50,100,356))) 
 
+municipal_suicides<-ggplot() +
+  geom_sf(data=state_shape2, fill = '#00000000', size=.4) +
+   geom_sf(data = mun_shape, aes(fill = rate_cut), size=.01) + 
+   # scale_colour_gradient2(low=ami_cols("green"), high=ami_cols("orange"),
+   #                      na.value = ami_cols("dark grey") 
+   #                       ) +
+  #scale_fill_gradient(name = 'Rate(#/100k)',low = ami_cols("green"), high = ami_cols('orange')) +
+  #scale_colour_gradientn(colors=ami_pal("cool")(4)) +
+  #scale_fill_brewer( color=ami_cols("green"), name = "Rate (#/100K)" )+
+  coord_sf(datum = NA)+
+  labs(title = " Municipal Average Suicide Rate 1998-2017",
+       legend = "Rate (#/100K)")  +
+  theme_ami + 
+  theme(panel.grid = element_blank()) 
+   #scale_colour_manual(values = c(ami_pal("cool")(4)))
 
+border<- geom_polygon(data = state_shape2, fill = NA, color = "red") + 
+    coord_fixed(1.3)
+
+scale_fill_gradientn
 
 ```
+```{r}
+load(here("Data/diego_valle/mxmunicipio.map.RData"))
+load(here("Data/diego_valle/df_mxstate.RData"))
+
+```
+
