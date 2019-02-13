@@ -492,40 +492,52 @@ stat_sum_df <- function(fun, geom="crossbar", ...) {
   stat_summary(fun.data = fun, colour = "red", geom = geom, width = 0.2, ...)
 }
 
-male_mean_17<- mean(subset(suicides_by_sex, sex="Male", year_death==2017)$age_years, na.rm=TRUE)
-male_mean_08<- mean(subset(suicides_by_sex, sex="Male", year_death==2008)$age_years, na.rm=TRUE)
-male_mean_98<- mean(subset(suicides_by_sex, sex="Male", year_death==1998)$age_years, na.rm=TRUE)
+# male_mean_17<- mean(subset(suicides_by_sex, sex="Male", year_death==2017)$age_years, na.rm=TRUE)
+# male_mean_08<- mean(subset(suicides_by_sex, sex="Male", year_death==2008)$age_years, na.rm=TRUE)
+# male_mean_98<- mean(subset(suicides_by_sex, sex="Male", year_death==1998)$age_years, na.rm=TRUE)
+# female_mean_17<- mean(subset(suicides_by_sex, sex="Female", year_death==2017)$age_years, na.rm=TRUE)
+# female_mean_08<- mean(subset(suicides_by_sex, sex="Female", year_death==2008)$age_years, na.rm=TRUE)
+# female_mean_98<- mean(subset(suicides_by_sex, sex="Female", year_death==1998)$age_years, na.rm=TRUE)
 
-female_mean_17<- mean(subset(suicides_by_sex, sex="Female", year_death==2017)$age_years, na.rm=TRUE)
-female_mean_08<- mean(subset(suicides_by_sex, sex="Female", year_death==2008)$age_years, na.rm=TRUE)
-female_mean_98<- mean(subset(suicides_by_sex, sex="Female", year_death==1998)$age_years, na.rm=TRUE)
+mean_male_98<-suicides_by_sex %>% filter(sex=="Male" & year_death==1998) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_male_08<-suicides_by_sex %>% filter(sex=="Male" & year_death==2008) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_male_17<-suicides_by_sex %>% filter(sex=="Male" & year_death==2017) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
 
-
-#, draw_quantiles = c(0.25, 0.5, 0.75)
-
-violines<-ggplot(suicides_by_sex, aes(y=age_years, x=sex, fill=sex)) +
-  geom_violin(trim = FALSE) +
- geom_violin(trim = FALSE, draw_quantiles = c(0.25, .5, 0.75), linetype = "dashed",show.legend = FALSE)  + 
-# stat_summary(fun.y = "mean", fun.ymin = "mean", fun.ymax = "mean", 
-#                  colour = "black", aes(shape="total"), geom="point",  shape=17, size=2, show.legend = FALSE) +
-guides(colour=guide_legend(order=1), shape=guide_legend(title=NULL, order=2)) +
-
- # geom_boxplot(width=0.1, alpha=0.2, show.legend = FALSE) +     
-geom_violin(fill="transparent") +
-  facet_wrap(~ year_death) +
-theme_ami
-
-
-dat_text <- data.frame(
-  label = c(33.8, 35.4, 35.2),
+mean_female_98<-suicides_by_sex %>% filter(sex=="Female" & year_death==1998) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_female_08<-suicides_by_sex %>% filter(sex=="Female" & year_death==2008) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_female_17<-suicides_by_sex %>% filter(sex=="Female" & year_death==2017) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+dat_text1 <- data.frame(
+  label = c(28.9, 30.4, 31.6),
   year_death   = c(1998, 2008, 2017),
-  sex     = c("Female", "Female", "Female"),
-  age_years     = c(33.8, 35.4, 35.2)
+  Sex     = c("Female", "Female", "Female"),
+  age_years     = c(28.9, 30.4, 31.6)
+)
+dat_text2 <- data.frame(
+  label = c(34.6, 36.5, 36.1),
+  year_death   = c(1998, 2008, 2017),
+  Sex     = c("Male", "Male", "Male"),
+  age_years     = c(34.6, 36.5, 36.1)
 )
 
-violines<-violines + geom_text(
-  data    = dat_text,
-  mapping = aes(y = age_years, x = sex,  label = label), size=3)
+colnames(suicides_by_sex)[colnames(suicides_by_sex)=="sex"] <- "Sex"
+
+violines<-ggplot(suicides_by_sex, aes(y=age_years, x=Sex, fill=Sex), alpha=.1) +
+  geom_violin(alpha=.6) +
+  scale_fill_manual(values=c("#318333", "#e19509")) +
+ geom_violin(draw_quantiles = c(0.25, .5, 0.75), linetype = "dashed",show.legend = FALSE, alpha=0.1)  + 
+geom_violin(fill= 'transparent', alpha=0.1) +
+  facet_wrap(~ year_death) +
+geom_text(
+  data    = dat_text1,
+  mapping = aes(y = age_years, x = Sex,  label = label), size=3) +
+geom_text(
+  data    = dat_text2,
+  mapping = aes(y = age_years, x = Sex,  label = label), size=3)+
+  ggtitle("Age Distribution of Suicide Cases by Sex")+
+  labs( subtitle = "(Years 1998, 2008, 2017 -the number corresponds to the average age-)",
+      caption="Source: INEGI" ,x = "Sex", y = "Years") +
+  theme_ami
+
 violines
 ```
 
@@ -700,7 +712,7 @@ final_suicides_by_cohort$ordered_cohort <- factor(final_suicides_by_cohort$age_c
 ```{r cohorts plot, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE,  results='hide'}
 cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(ordered_cohort) & ordered_cohort!="Less than 15"), aes(x=year_death, y=rate_suicides_bycohort)) +
   geom_step(color=ami_cols("green")) +
-  facet_wrap(~ ordered_cohort)+
+  facet_wrap(~ ordered_cohort) +
   ggtitle("Suicides are ramping up among young population")+
   labs( subtitle = "Rates of suicides by age cohort",
       caption="Source: INEGI and CONAPO" ,x = "Year", y = "Rate/100K") +
