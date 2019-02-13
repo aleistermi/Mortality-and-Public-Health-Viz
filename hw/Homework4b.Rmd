@@ -1,7 +1,7 @@
 ---
-title: "Homework 3"
+title: "Homework 4"
 author: "Aleister Montfort"
-date: "1/29/2019"
+date: "2/12/2019"
 output: 
   html_document:
     css: style.css
@@ -23,7 +23,7 @@ library(dplyr)
 library(ggridges)
 ```
 
-```{r}
+```{r, include=FALSE}
 rm(list = ls())
 path = here("death_certificates.RData")
 print(path)
@@ -482,7 +482,7 @@ What are the some of the characteristics of suicides in Mexico? The chart below 
 
 The first thing to note is that suicides are more prevalent among young and males (though with these charts I do not intend to support the argument that it is more prevalent in males). The mean age for males is around 36.1 years old, and for females is 30.5 across period 1998-2017. The chart on top shows the distribution of ages for males ([this code comes from here](https://socviz.co/refineplots.html)). From this chart, it is important to notice that across the years, the curves have flattened, suggesting that suicides are becoming more prevalent in middle-age groups (i.e. the 1998 distribution was more compact and peaked than the 2017 distribution, which left tail is getting longer, concentraring its mass distribution on the right). In fact, the average age ot death for males went from  34.6 in 1998 to 36.1, and for females from 28.9 to 31.6. This flattening of the curve is also notable for females.
 
-```{r violinsplot, echo=FALSE}
+```{r violinsplot, echo=FALSE, warning=FALSE, message=FALSE}
 library(ggridges)
 suicides_by_sex<- death_certificates %>% select(non_natural_causes,sex, age_years, year_death)
 
@@ -599,7 +599,7 @@ plot_ages_female
 The first chart below plots the annual suicide rate (cases per 100 thousand inhabitants) and municipality's population size. The data to create this chart was censored for municipalities that have more than 100,000 inhabitants, which are only a small hand of cities with low suicide rates. Then, across all municipalities, the rates of suicides are pretty similar, but after a certain size threshold (around 25 thousand inhabitants), the rate increases much more. Otherwise said, municipalities that are small in size present the largest rate of homicides.
 The chart below present a similar information, but plots on the y axis the average annual change rate in suicides rate for the entire sample period (1998-2017). Again, smaller municipalities show the fastest increase in the rate of homicides.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
+```{r, echo=FALSE, include=FALSE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
 ####### SUICIDES AND POPULATION #####
 # First I want to create average change in suicide rate
 library(lubridate)
@@ -981,10 +981,10 @@ colnames(mun_shape)[colnames(mun_shape) == 'state_mun_OCUR'] <- 'region'
 colnames(mun_shape)[colnames(mun_shape) == 'rate_cut'] <- 'value'
 
 municipal_suicides_plot<-mxmunicipio_choropleth(mun_shape)+ scale_fill_brewer("Rate/100K", type = "qual", palette= ami_pal(palette="green_orange")(4), na.value=ami_cols("dark grey")) +
-  labs(title = "20-years Annual Average Municipal Suicide Rate (1998-2017)",
+  labs(title = "20-years Annual Average Municipal \nSuicide Rate (1998-2017)",
        legend = "Rate (#/100K)", 
        caption = "Source: INEGI, CONAPO and Diego Valle's Blog (https://www.diegovalle.net) ") +
-  annotate(geom = "text", x = -95, y = 31, label = "Mexico National Average: 5.2", size = 5, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 30, label = "World Average: 10.5", size = 5, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 29, label = "US Average: 13.7", size = 5, hjust = 0, family="Karla") +
+  annotate(geom = "text", x = -95, y = 31, label = "Mexico National \nAverage: 5.2", size = 4, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 30, label = "World Average: 10.5", size = 4, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 29, label = "US Average: 13.7", size = 4, hjust = 0, family="Karla") +
   theme_amiplots
 
 municipal_suicides_plot[["layers"]][[1]][["aes_params"]][["colour"]] <- "transparent"
