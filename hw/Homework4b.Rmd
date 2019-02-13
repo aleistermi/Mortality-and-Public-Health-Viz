@@ -450,7 +450,6 @@ group_by(age_years) %>% mutate(percent = n/sum(n)*100)
 
 normalized_suic_age_male$ordered_vars <- factor(normalized_suic_age_male$occupation, levels=c("NA", "Not Working/Looking for a job", "Artisan/Auxiliary Workers", "Primary Sector Worker", "Surveillance-Personal Services", "Informal Worker", "Industrial/Manufacturing/Transport worker", "Admin Work", "Salesman", "White Collar", "Professional-Technical worker", "Personal Services at businesses" ))
 
-#, show.legend = FALSE
 size_parameter<-2.5
 occupation_plot<-ggplot(normalized_suic_age_male, aes(x=age_years, y=percent, fill=ordered_vars)) +  
   geom_area(size=.05, alpha=.7, color='black' , show.legend = FALSE) +
@@ -476,63 +475,6 @@ occupation_plot
 ```
 
 
-```{r causes pressure, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE, error=FALSE}
-# causes<- death_certificates %>% select(cause_of_death,sex,school_category, age_years)
-# 
-# causes_male <- filter(causes, cause_of_death!= 'HOMICIDES' & cause_of_death!= 'WAR OPERATIONS' & cause_of_death!= 'OTHER ACCIDENT' & cause_of_death!= 'AIR, WATER, OTHER TRANSPORT ACC' & sex=="Male")
-# 
-# 
-# causes_male = causes_male %>% 
-#                               mutate(cause_of_death = if_else( 
-#                                 cause_of_death=='AFTERMATH' | 
-#                                 cause_of_death=='PERINATAL PERIOD ILLNESS' | 
-#                                 cause_of_death=='ABNORMAL CLINIC LAB' |
-#                                 cause_of_death=='MEDICAL ASSIST' | cause_of_death=='EYE ILLNESS'| 
-#                                 cause_of_death=="LEGAL DRUG ABUSE"|cause_of_death=='DIGESTIVE SYSTEM', 'OTHER', cause_of_death))
-# causes_male = causes_male %>% 
-#                               mutate(cause_of_death = if_else( 
-#                                 cause_of_death=='DRUG_USE_LEGAL', 'LEGAL DRUG ABUSE', cause_of_death))
-# causes_male = causes_male %>% 
-#                               mutate(cause_of_death = if_else( 
-#                                 cause_of_death=='HIV', 'AIDS', cause_of_death))
-# causes_male = causes_male %>% 
-#                               mutate(cause_of_death = if_else( 
-#                                 cause_of_death=='CONGENITAL MALF', 'CONGENITAL MALFORMATIONS', cause_of_death))
-# causes_male = causes_male %>% 
-#                               mutate(cause_of_death = if_else( 
-#                                 cause_of_death=='OSTEOMUSCULAR CONJ', 'OSTEOMUSCULAR AND CONJUNCTIVE DISEASES', cause_of_death))
-# 
-# 
-# causes_normalized_age_male<- causes_male %>% 
-#   group_by(age_years, cause_of_death) %>% 
-#   tally() %>% 
-# group_by(age_years) %>% mutate(percent = n/sum(n)*100)
-# 
-# causes_normalized_age_male$ordered_vars <- factor(causes_normalized_age_male$cause_of_death, levels=c("OTHER", "CONGENITAL MALFORMATIONS","GENITOURINARY","OSTEOMUSCULAR AND CONJUNCTIVE DISEASES","CIRCULATORY SYSTEM", "INFECTION NO HIV", "AIDS", "MENTAL ILLNESS" , "CANCER", "NERVOUS SYSTEM ILLNESS",  "RESPIRATORY SYSTEM", "SUICIDES" ))
-# size_parameter<-2.5
-# causesplot<-ggplot(causes_normalized_age_male, aes(x=age_years, y=percent, fill=cause_of_death)) + 
-#     geom_area( size=.05, alpha=.7, color='black' , show.legend = FALSE) +
-#     geom_text(aes(x=25, label="Other", y=98), colour="white", size=size_parameter) +
-#     geom_text(aes(x=85, label="Congenital Malformations", y=90), colour="white", size=size_parameter) +
-#     geom_text(aes(x=85, label="Genitourinary", y=80), colour="white", size=size_parameter) +
-#     geom_text(aes(x=75, label="Osteomuscular and Conjuctive Diseases", y=74), colour="white", size=size_parameter) +
-#     geom_text(aes(x=85, label="Circulatory System", y=68), colour="white", size=size_parameter) +
-#     geom_text(aes(x=85, label="Infections", y=58), colour="white", size=size_parameter) +
-#     geom_text(aes(x=34, label="AIDS", y=48), colour="white", size=size_parameter) +
-#     geom_text(aes(x=58, label="Mental Illness", y=44), colour="white", size=size_parameter) +
-#     geom_text(aes(x=30, label="Cancer", y=30), colour="white", size=size_parameter) +
-#     geom_text(aes(x=75, label="Nervous System", y=8), colour="white", size=size_parameter) +
-#     geom_text(aes(x=75, label="Respiratory System", y=3), colour="white", size=size_parameter) +
-#     geom_text(aes(x=23, label="Suicides", y=3), colour="white", size=size_parameter) +
-#   labs(title = "2. Principal Male Mortality Causes in Mexico by Age",
-#        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
-#        x = "Age", y = "%") +
-#        theme(plot.title = element_text(lineheight=.8, face="bold")) +
-# theme_ami
-# causesplot
-```
-
-
 
 ### B. Male and Female Suicides
 
@@ -549,12 +491,42 @@ suicides_by_sex <- subset(suicides_by_sex, (non_natural_causes=="Suicide") & (ye
 stat_sum_df <- function(fun, geom="crossbar", ...) {
   stat_summary(fun.data = fun, colour = "red", geom = geom, width = 0.2, ...)
 }
-#subset(suicides_by_sex, sex=="Male")
-violines<-ggplot(suicides_by_sex, aes(y=age_years, x=sex, fill=sex)) +
-  geom_violin(trim = FALSE, draw_quantiles = c(0.25, 0.5, 0.75))  + 
-  facet_wrap(~ year_death)+ stat_summary(fun.y=mean, geom="point", shape=23, size=2)
-violines
 
+male_mean_17<- mean(subset(suicides_by_sex, sex="Male", year_death==2017)$age_years, na.rm=TRUE)
+male_mean_08<- mean(subset(suicides_by_sex, sex="Male", year_death==2008)$age_years, na.rm=TRUE)
+male_mean_98<- mean(subset(suicides_by_sex, sex="Male", year_death==1998)$age_years, na.rm=TRUE)
+
+female_mean_17<- mean(subset(suicides_by_sex, sex="Female", year_death==2017)$age_years, na.rm=TRUE)
+female_mean_08<- mean(subset(suicides_by_sex, sex="Female", year_death==2008)$age_years, na.rm=TRUE)
+female_mean_98<- mean(subset(suicides_by_sex, sex="Female", year_death==1998)$age_years, na.rm=TRUE)
+
+
+#, draw_quantiles = c(0.25, 0.5, 0.75)
+
+violines<-ggplot(suicides_by_sex, aes(y=age_years, x=sex, fill=sex)) +
+  geom_violin(trim = FALSE) +
+ geom_violin(trim = FALSE, draw_quantiles = c(0.25, .5, 0.75), linetype = "dashed",show.legend = FALSE)  + 
+# stat_summary(fun.y = "mean", fun.ymin = "mean", fun.ymax = "mean", 
+#                  colour = "black", aes(shape="total"), geom="point",  shape=17, size=2, show.legend = FALSE) +
+guides(colour=guide_legend(order=1), shape=guide_legend(title=NULL, order=2)) +
+
+ # geom_boxplot(width=0.1, alpha=0.2, show.legend = FALSE) +     
+geom_violin(fill="transparent") +
+  facet_wrap(~ year_death) +
+theme_ami
+
+
+dat_text <- data.frame(
+  label = c(33.8, 35.4, 35.2),
+  year_death   = c(1998, 2008, 2017),
+  sex     = c("Female", "Female", "Female"),
+  age_years     = c(33.8, 35.4, 35.2)
+)
+
+violines<-violines + geom_text(
+  data    = dat_text,
+  mapping = aes(y = age_years, x = sex,  label = label), size=3)
+violines
 ```
 
 
