@@ -23,6 +23,14 @@ library(dplyr)
 library(ggridges)
 ```
 
+```{r}
+rm(list = ls())
+path = here("death_certificates.RData")
+print(path)
+data = load(path)
+
+```
+
 ```{r, load data, include=FALSE}
 here()
 path = here("death_certificates.RData")
@@ -77,51 +85,6 @@ ami_cols <- function(...) {
   ami_colors[cols]
 }
 
-# ####
-# ami_palettes <- list(
-#   `redish`  = ami_cols('red', 'orange'),
-# 
-#   `cool`  = ami_cols('blue', 'green'),
-# 
-#   `grey`   = ami_cols("dark_grey"),
-# 
-#   `blue` = ami_cols("blue"),
-# 
-#   `red`  = ami_cols("red")
-# )
-# 
-# ami_pal <- function(palette = "cool", reverse = FALSE, ...) {
-#   pal <- ami_palettes[[palette]]
-# 
-#   if (reverse) pal <- rev(pal)
-# 
-#   colorRampPalette(pal, ...)
-# }
-# 
-# scale_color_ami <- function(palette = "cool", discrete = TRUE, reverse = FALSE, ...) {
-#   
-#   pal <- ami_pal(palette = palette, reverse = reverse)
-# 
-#   if (discrete) {
-#     discrete_scale("colour", paste0("ami_", palette), palette = pal, ...)
-#   } else {
-#     scale_color_gradientn(colours = pal(256), ...)
-#   }
-# }
-# scale_fill_ami <- function(palette = "main", discrete = TRUE, reverse = FALSE, ...) {
-#   pal <- ami_pal(palette = palette, reverse = reverse)
-# 
-#   if (discrete) {
-#     discrete_scale("fill", paste0("ami_", palette), palette = pal, ...)
-#   } else {
-#     scale_fill_gradient2(colours = pal(256), ...)
-#   }
-# }
-# install.packages("extrafont")
-
-# library(extrafont)
-# font_import()
-# load(fonts)
 ```
 
 ```{r, prepare data chart 1, include=FALSE}
@@ -203,14 +166,16 @@ theme_ami<-
   theme(text = element_text(family = "Karla")) +
   theme(line = element_line(color=ami_cols("green"))) 
   
-theme_amiplots<- theme(plot.title = element_text(size = 14, family = "Karla", face='bold'))+
-  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain"))+
-    theme(text=element_text(family="Karla"))+
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Karla", size=7)) +
-  theme(text = element_text(family = "Karla")) +
-  theme(line = element_line(color=ami_cols("green"))) 
 
+theme_amiplots<-
+ theme(plot.title = element_text(size = 16, family = "Karla", face='bold')) +
+  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain")) + 
+    theme(text=element_text(family="Karla")) +
+        theme(legend.key=element_rect(fill="white", colour="white")) +
+  theme(plot.caption = element_text(family="Karla", size=7))  +
+  theme(legend.title = element_text(face="bold")) +
+  theme(legend.background = element_rect()) +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
@@ -916,6 +881,12 @@ heatmaps<-ggarrange(heat_map_suicide_male, heat_map_suicide_female, ncol=1)
 # install.packages(c("cowplot", "googleway", "ggrepel", 
 # "ggspatial", "libwgeom", "sf", "rnaturalearth", "rnaturalearthdata", "rgeos"))
 #load(here("Data/diego_valle/mxmunicipio.map.RData"))
+# scale_colour_gradient2(low=ami_cols("green"), high=ami_cols("orange"),
+   #                      na.value = ami_cols("dark grey") 
+   #                       ) +
+  #scale_fill_gradient(name = 'Rate(#/100k)',low = ami_cols("green"), high = ami_cols('orange')) +
+  #scale_colour_gradientn(colors=ami_pal("cool")(4)) +
+  #scale_fill_brewer( color=ami_cols("green"), name = "Rate (#/100K)" )+
 load(here::here("Data/diego_valle/df_mxstate.RData"))
 
 ```
@@ -932,7 +903,7 @@ library("sf")
 k<-100000
 
 
-## States ####
+## States Suicides ####
 suicides_state_yearly <-
   filter(death_certificates, non_natural_causes== 'Suicide') %>% 
   group_by(state_ocur, ANIO_OCUR) %>% 
@@ -977,7 +948,7 @@ state_suicide_rate_plot<- mxhexbin_choropleth(df_mx_state, num_colors = 1) +
   scale_fill_gradient("Rate",low=ami_cols("green"), high = ami_cols("orange")) +
    labs(title = "Average Suicide Rate 1998-2017",
        subtitle = "Southeastern states show the higher suicide rates",
-       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)")+
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") +
   
   
  theme(plot.title = element_text(size = 14, family = "Karla", face='bold')) +
@@ -990,14 +961,11 @@ state_suicide_rate_plot
 
 ### MUNICIPAL SUICIDES ####
 
-#load(here::here("Data/Shape_Mun/Municipios.shp"))
-
 mun_shape <- st_read(here::here("Data/muni_2012gw/Muni_2012gw.shp"))
-state_shape<- st_read(here::here("Data/state_boundaries/State.shp"))
-state_shape2<- st_read(here::here("data/state_boundaries/dest_2015gw/dest_2015gw.shp"))
-# path = here("death_certificates.RData")
-# print(path)
-# data = load(path)
+mun_shape<-st_simplify(mun_shape)
+state_shape<- st_read(here::here("data/state_boundaries/dest_2015gw/dest_2015gw.shp"))
+state_shape<-st_simplify(state_shape)
+
 suicides_municipal_yearly <-
   filter(death_certificates, non_natural_causes== 'Suicide') %>% 
   group_by(state_mun_OCUR, ANIO_OCUR) %>% 
@@ -1013,8 +981,6 @@ suicides_municipal_yearly<- suicides_municipal_yearly %>%
                                           ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ (n/as.numeric(pop2010))*k,
                                           ANIO_OCUR>2013 ~ (n/as.numeric(pop2015))*k), na.rm = TRUE)
 
-#rate_suicides_17 <- subset(suicides_municipal_yearly, ANIO_OCUR==2017)
-
 municipal_average_suicide<-suicides_municipal_yearly%>%
   group_by(state_mun_OCUR, municipal_name, cve_edo, state_name) %>%
   summarise_at(vars(rate), funs(mean(., na.rm=TRUE)))
@@ -1026,32 +992,75 @@ mun_shape = mun_shape %>%
     left_join(municipal_average_suicide, by = "state_mun_OCUR")  
 
 mun_shape<- mun_shape %>%
-  mutate(rate_cut = cut(mun_shape$rate, c(0,8,16,50,356))) 
+  mutate(rate_cut = cut(mun_shape$rate, c(0,5.2,10.5,13.7,356))) 
+colnames(mun_shape)[colnames(mun_shape) == 'state_mun_OCUR'] <- 'region'
+colnames(mun_shape)[colnames(mun_shape) == 'rate_cut'] <- 'value'
 
-municipal_suicides<-ggplot() +
-  geom_sf(data=state_shape2, fill = '#00000000', size=.4) +
-   geom_sf(data = mun_shape, aes(fill = rate_cut), size=.01) + 
-   # scale_colour_gradient2(low=ami_cols("green"), high=ami_cols("orange"),
-   #                      na.value = ami_cols("dark grey") 
-   #                       ) +
-  #scale_fill_gradient(name = 'Rate(#/100k)',low = ami_cols("green"), high = ami_cols('orange')) +
-  #scale_colour_gradientn(colors=ami_pal("cool")(4)) +
-  #scale_fill_brewer( color=ami_cols("green"), name = "Rate (#/100K)" )+
-  coord_sf(datum = NA)+
-  labs(title = "Municipal Average Suicide Rate 1998-2017",
+municipal_suicides_plot<-mxmunicipio_choropleth(mun_shape)+ scale_fill_brewer("Rate/100K", type = "qual", palette= ami_pal(palette="green_orange")(4), na.value=ami_cols("dark grey")) +
+  labs(title = "20-years Annual Average Municipal Suicide Rate (1998-2017)",
        legend = "Rate (#/100K)", 
-       caption = "Source: INEGI and CONAPO ") +
-scale_color_manual(name = "Rate",
-                     values = c("(0,16]" = ami_cols("green"),
-                                  "(16,50]" = ami_cols("blue"),
-                                  "(50,100]" = ami_cols("orange"),
-                                   "(100,356]" = ami_cols("red") ),
-                     labels = c("<= 16", "16 < rate <= 50", "100 < rate <= 356"))+
-  theme_ami + 
-  theme(panel.grid = element_blank()) 
-   #scale_colour_manual(values = c(ami_pal("cool")(4)))
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog (https://www.diegovalle.net) ") +
+  annotate(geom = "text", x = -95, y = 31, label = "Mexico National Average: 5.2", size = 5, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 30, label = "World Average: 10.5", size = 5, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 29, label = "US Average: 13.7", size = 5, hjust = 0, family="Karla") +
+  theme_amiplots
 
-municipal_suicides
+municipal_suicides_plot[["layers"]][[1]][["aes_params"]][["colour"]] <- "transparent"
+municipal_suicides_plot
+
 ```
+
+```{r create several years municipal level, include=FALSE}
+library(purrr)
+head(suicides_municipal_yearly)
+map_per_year <- function(Yr){
+                mun_df <- st_read(here::here("Data/muni_2012gw/Muni_2012gw.shp"))
+                mun_df<-st_simplify(mun_df)
+                head(mun_df)
+                mun_df<- mun_df %>% 
+                mutate(state_mun_OCUR= paste(CVE_ENT, CVE_MUN, sep=""))
+                
+                mun_df = mun_df %>%
+                  left_join(suicides_municipal_yearly[suicides_municipal_yearly$ANIO_OCUR==Yr,], by = c("state_mun_OCUR"="state_mun_OCUR"))  
+                mun_df<- mun_df %>%
+  mutate(rate_cut = cut(mun_df$rate, c(0,8.2,20,50,356))) 
+                colnames(mun_df)[colnames(mun_df) == 'state_mun_OCUR'] <- 'region'
+                colnames(mun_df)[colnames(mun_df) == 'rate_cut'] <- 'value'
+                title_plot = paste0("Municipal Suicide Rate in"," ",Yr)            
+                municipal_suicides_plot<-mxmunicipio_choropleth(mun_df)+                 scale_fill_brewer("Rate/100K", type = "qual", palette= ami_pal(palette="green_orange")(4), na.value=ami_cols("dark grey")) +
+                labs(title = title_plot,
+       legend = "Rate (#/100K)", 
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog (https://www.diegovalle.net) ") +
+                  
+  theme_amiplots
+
+municipal_suicides_plot<-municipal_suicides_plot[["layers"]][[1]][["aes_params"]][["colour"]] <- "transparent"
+                
+    ggsave(filename = paste0("mun_suicide",Yr,".png"),
+           width = 8,height=8,dpi = 150)
+}
+```
+```{r gif second attempt, include=FALSE}
+# library(magick)
+# list.files(path = here::here("pngs"), pattern = "*.png", full.names = T) %>% map(image_read) %>% # reads each path file
+#   image_join() %>% # joins image
+#   image_animate(fps=4) %>% # animates, can opt for number of loops
+#   image_write("suicides.gif") # write to current dir
+# 
+# png.files <- sprintf("mun_suicide%02d.png", 1998:2017) #Mention the number of files to read
+# GIF.convert <- function(x, output = "animation.gif")#Create a function to read, animate and convert the files to gif
+#         {
+#         image_read(x) %>%
+#         image_animate(fps = 4) %>%
+#         image_write(output)
+#         }
+# 
+#   GIF.convert(png.files)
+        
+# A.c <- c(mun_suicide1998,mun_suicide.1999,mun_suicide.2000,mun_suicide.2001,mun_suicide.2002,mun_suicide.2003,mun_suicide.2004,mun_suicide.2005,mun_suicide.2006,mun_suicide.2007,mun_suicide.2008,mun_suicide.2009, mun_suicide.2010,mun_suicide.2011,mun_suicide.2012,mun_suicide.2013, mun_suicide.2014, mun_suicide.2015, mun_suicide.2016, mun_suicide.2017)
+#   A.img <- image_scale(A.c)
+#   A.ani <- image_animate(A.img, fps = 1, dispose = "previous")
+#   image_write(A.ani, paste0("A_animation.gif"))
+
+```
+
 
 
