@@ -529,12 +529,12 @@ geom_violin(fill= 'transparent', alpha=0.1) +
   facet_wrap(~ year_death) +
 geom_text(
   data    = dat_text1,
-  mapping = aes(y = age_years, x = Sex,  label = label), size=3) +
+  mapping = aes(y = age_years, x = Sex,  label = label), size=3, family="Karla") +
 geom_text(
   data    = dat_text2,
-  mapping = aes(y = age_years, x = Sex,  label = label), size=3)+
+  mapping = aes(y = age_years, x = Sex,  label = label), size=3, family="Karla")+
   ggtitle("Age Distribution of Suicide Cases by Sex")+
-  labs( subtitle = "(Years 1998, 2008, 2017 -the number corresponds to the average age-)",
+  labs( subtitle = "(Years 1998, 2008, 2017. The number in the plot corresponds to the average age)",
       caption="Source: INEGI" ,x = "Sex", y = "Years") +
   theme_ami
 
