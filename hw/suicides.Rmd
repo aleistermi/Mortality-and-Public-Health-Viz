@@ -937,14 +937,14 @@ male_state_suicide_plot<- mxhexbin_choropleth(male_state_suicides, num_colors = 
  labs(title = "Average Age of Male Suicide Cases 1998-2017",
        subtitle = "",
       legend = "Age",
-       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette=ami_pal("green")(4)) +
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette=ami_pal("green")(4), direction=-1) +
 theme_amiplots
 
 female_state_suicide_plot<- mxhexbin_choropleth(female_state_suicides, num_colors = 4) +
  labs(title = "Average Age of Female Suicide Cases 1998-2017",
        subtitle = "",
       legend = "Age",
-       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette='OrRd') +
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette='OrRd', direction=-1) +
 theme_amiplots 
 
 
