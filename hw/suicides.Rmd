@@ -71,7 +71,16 @@ ami_colors <- c(             # I will select these colors
   `light_blue`   = '#eff3ff',
   `orange`     = "#e19509",
   `light grey` = "#f7f7f7",
-  `dark grey`  = "#808080")
+  `dark grey`  = "#808080",
+  `peach` = "#FF8C76",
+  `pink`= "#F082B3",
+  `green2`= "#7ABA95",
+  `green3` = "#4E7F35",
+  `blue2`= "#4C64E8",
+  `purple`= '#912FF7')
+
+
+
 
 ami_cols <- function(...) { # And create this function to have them ready without typying the HEX Code
   cols <- c(...)
@@ -234,6 +243,11 @@ war_operations_df <- monthly_death_national %>%
   filter(non_natural_causes=="War Operations")
 homicides_df <- deaths_base100 %>%
   filter(non_natural_causes=="Homicide") 
+accidents_df <- deaths_base100 %>%
+  filter(non_natural_causes=="Accident") 
+dn_df <- deaths_base100 %>%
+  filter(non_natural_causes=="Don't know") 
+
 
 deaths_base100<-monthly_death_national %>% 
   mutate(index = case_when(non_natural_causes=="Accident" ~ (death_rate*100/4.10),  
@@ -245,11 +259,20 @@ deaths_base100<-monthly_death_national %>%
 
 ggplot() + 
   # draw the original data series with grey
-geom_line(aes(x=yearmonth, y=index, group = non_natural_causes), data = subset(deaths_base100, non_natural_causes!="War Operations"), colour = alpha("grey", 0.7)) +
+geom_line(aes(x=yearmonth, y=index, group = non_natural_causes), data = subset(deaths_base100, non_natural_causes!="War Operations"), colour = alpha("grey", 0.4), size=.4) +
   # colourise only the filtered data
-  geom_line(aes(x=yearmonth, y=index, colour = ami_cols("green")), data = death_filtered) +
+  geom_line(aes(x=yearmonth, y=index), data = death_filtered, colour = ami_cols("green3"), alpha=.9, size=.6) +
+  # gghighlight(non_natural_causes="Suicide", label_key = non_natural_causes , color=ami_cols("peach")) +
   # colourise only the filtered data
-  geom_line(aes(x=yearmonth, y=index), data = homicides_df, alpha=.3)
+  geom_line(aes(x=yearmonth, y=index), data = homicides_df, color=ami_cols("blue"),alpha=.6, size=.2) +
+ scale_x_discrete(limit = c(1998, 2003, 2008, 2013,  2017)) +
+  theme_ami
+
+# `peach` = "FF8C76",
+#   `pink`= "F082B3",
+#   `green2`= "7ABA95",
+#   `blue2`= "4C64E8",
+#   `purple`= '912FF7')
 
 ```
 
