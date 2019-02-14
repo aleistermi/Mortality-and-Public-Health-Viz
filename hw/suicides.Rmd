@@ -95,7 +95,9 @@ ami_palettes <- list(
   `blue` = ami_cols("blue"),
 
   `red`  = ami_cols("red"),
-  `green_orange`  = ami_cols("green", "orange")
+  `green_orange`  = ami_cols("green", "orange"),
+  `green` = ami_cols("green"),
+  `orange` = ami_cols("orange")
 )
 
 ami_pal <- function(palette = "cool", reverse = FALSE, ...) {
@@ -300,7 +302,7 @@ natural_death_plot = ggplot(subset(monthly_death_national,natural== 1 ), aes(x=y
   geom_line(color=ami_cols("green"), alpha=.9)  +
    labs(title = "1B. Natural Deaths Mortality Rate in Mexico 1998-2017",
        subtitle = "Once we exclude non-natural causes, the increase in mortality rates persist, suggesting an increase in mortality \ndue to public health issues",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       caption = "Source: INEGI and CONAPO", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   stat_smooth(
    method = "loess", se = FALSE, color= ami_cols("orange"), size=.5, alpha=0.25) +
@@ -326,7 +328,7 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
   geom_line(color=ami_cols("green"), alpha=.9)  +
   labs(title = "1C. Dwindling accidents",
        subtitle = "Accident-related deaths show a smooth decrease in the last 20 years",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       caption = "Source INEGI and CONAPO", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   geom_vline(xintercept =2001 , linetype="dotted", 
                 color = ami_cols("orange"), size=.5) + 
@@ -351,7 +353,7 @@ homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Ho
     geom_text(aes(x=2007.1, label="War on drugs starts", y=.20), colour=ami_cols("orange"), hjust = 0) +
 labs(title = "1D. Homicides rate: an upward trend",
        subtitle = "After a substantive decrease between 2011-2015,\n homicides rate shows a sharp upward trend again",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       caption = "Source: INEGI and CONAPO", 
        x = "Year", y = "Monthly Rate (per 100k)")+
 theme_ami
 homicide_plot
@@ -377,15 +379,16 @@ war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Ope
   geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour=ami_cols("orange")) +
     labs(title = "1E. War operations: the costs of decreasing the homicides rate?",
        subtitle = "Deaths show a greater variance and levels between 2011 and 2015, \na coincident period with the temporal drop in homicides",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       caption = "Source: INEGI and CONAPO", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_ami
 war_plot
 
 ```
 
-### G. Deaths with no classification
-This classification correspond to non-natural casuses of death that were not classified. This chart shows an interesting behavior of deaths in this category. They follow a similar pattern as the homicides' one: a relative decline up to the mid 2000's; then an increase between 2010 and 2012, followed by a decrease up to around 2015. After this, we are observing an upward trend of these deaths. Finally, we should just underline that this inability to register non-natural cause deaths reflects in the best case a deterioration in the state capacity to keep the record of deaths, and in a context of the increase in violence, gives rise to doubts about the way the authorities collect and present information.
+### F. Deaths with no classification
+
+This sub-group corresponds to non-natural causes of death that were not classified. Interestingly, these deaths follow a similar pattern as the homicides' one: a relative decline up to the mid-2000's; then an increase between 2010 and 2012, followed by a decrease up to around 2015. After this, an upward trend is observed. This suggest that, perhaps, most of these deaths may correspond to homicides but administrative deficiencies prevented them to be correctly classified.
 
 ```{r, dont know plotlines, message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -393,23 +396,24 @@ This classification correspond to non-natural casuses of death that were not cla
 dn_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Don't know")), aes(x=yearmonth, y=death_rate)) +
   ylim(0.1, .5) +
   ylab('Monthly Rate') +
-  geom_line(color=ami_cols("green"))  +
+  geom_line(color=ami_cols("green"), alpha=0.9)  +
  geom_text(aes(x=2012.8, label="Decrease in \n homicides", y=.18), colour=ami_cols("orange")) +
   geom_vline(xintercept =2010.417, linetype="dotted", 
                 color = ami_cols("orange"), size=.5)+
    geom_vline(xintercept =2015.083, linetype="dotted", 
                 color = ami_cols("orange"), size=.5)+
-    labs(title = "1G. State's inability to produce vital stats",
+    labs(title = "1F. State's inability to produce vital stats",
        subtitle = "There is a significant increase in these classification of deaths, which reflects an increasing \nlack of State capacity to classify deaths",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       caption = "Source: INEGI AND CONAPO", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
 theme_ami
 dn_plot
 ```
-### C. Suicides
+### G. Suicides
 
-In a recent article (https://econ.st/2WuSTSN), the British magazine "The Economist" notes that the is a global trend in the decline of suicides, mostly driven by China, India and Russia. But they note that America is the big exception: this century its suicides rate has grown 18%, and if 20 years ago China's rate double America's, this relationship has been reversed.
-Perhaps for its smaller size as compared to India or China, the article does not mention Mexico, but as the chart below shows, there has been a sharp increase in suicides in the last 20 years, a period in which the rate almost doubles. Later in this work I aim to explore the data to answer some basic questions like: who are these people? where and when this phenomenon occur? and what are the characteristics of this group?
+In a recent article (https://econ.st/2WuSTSN), the British magazine "The Economist" notes that there is a global decline of suicides, mostly driven by China, India and Russia. But the article also underlines that America is the big exception: this century, suicides rate in America has grown 18%, and if 20 years ago China's rate doubled America's, this relationship has been reversed.
+A similar story can be told about suicides in Mexico. Compared to the analysis that other mortality trends have received, this phenomenon has received less attention and, to our knowledge, there are no comprehensive studies in this regard that account for their characteristics, not to mention their causes. The rest of the analysis of this work focuses exclusively on suicides in Mexico.
+Chart 1G shows the trend in suicides in Mexico. In the last 20 years, there has been a sharp increase in suicides events: the rate almost doubles.
 
 ```{r, suicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
 
@@ -417,10 +421,10 @@ Perhaps for its smaller size as compared to India or China, the article does not
 suicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Suicide")), aes(x=yearmonth, y=death_rate)) +
   ylim(.1, .6) +
   ylab('Monthly Rate') +
-  geom_line(color=ami_cols("green"))  +
- labs(title = "1C. Suicides: Ramping up",
+  geom_line(color=ami_cols("green"), alpha=0.9)  +
+ labs(title = "1G. Suicides: Ramping up",
        subtitle = "Suicides rate have increased in the last 20 years. On average, they have doubled, whereas in\nthe rest of the world, the opposite trend persists",
-       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       caption = "Source: INEGI and CONAPO", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
   theme_ami
 suicide_plot
@@ -876,22 +880,24 @@ load(here::here("Data/diego_valle/df_mxstate.RData"))
 ```
 
 ```{r maps, echo=FALSE,message=FALSE, echo=FALSE, results='hide',warning=FALSE}
-
-
 library('rgdal')
 library("sf")
+library("mxmaps")
+library("viridis")
+library("scales")
 
-
-
-#rm(list = ls())
 k<-100000
 
 
-## States Suicides ####
+## Age States Suicides ####
+state_shape<- st_read(here::here("data/state_boundaries/dest_2015gw/dest_2015gw.shp"))
+state_shape<-st_simplify(state_shape)
+
 suicides_state_yearly <-
   filter(death_certificates, non_natural_causes== 'Suicide') %>% 
   group_by(state_ocur, ANIO_OCUR) %>% 
   tally()
+
 state_population<- irs %>%
   group_by(cve_edo) %>%
   summarize(tot00 = sum(pop2000, na.rm = TRUE),
@@ -909,6 +915,39 @@ suicides_state_yearly<-suicides_state_yearly %>%
 
 state_population<-melt(state_population, id=c("cve_edo"))
 
+##THIS IS ONLY FOR AGE PLOTS####
+suicides_state_age_by_sex<-
+  filter(death_certificates, non_natural_causes== 'Suicide' & (sex=="Male" | sex=="Female")) %>% 
+  group_by(state_ocur, sex) %>% 
+  dplyr::summarize(Mean = mean(age_years, na.rm=TRUE))
+
+male_state_suicides<-dplyr:: left_join(state_shape, subset(suicides_state_age_by_sex,sex=="Male"),  by= c('CVE_ENT'="state_ocur"))
+
+female_state_suicides<-dplyr:: left_join(state_shape, subset(suicides_state_age_by_sex,sex=="Female"), by= c( 'CVE_ENT'="state_ocur"))
+
+male_state_suicides$value<-cut(male_state_suicides$Mean, 4, labels=c("22 to 27", "28 to 32" , "32 to 36", "37 to 41"))
+colnames(male_state_suicides)[colnames(male_state_suicides)=="CVE_ENT"] <- "region"
+
+female_state_suicides$value<-cut(female_state_suicides$Mean, 4, labels=c("27 to 29", "30 to 31" , "32 to 33", "33 to 35"))
+colnames(female_state_suicides)[colnames(female_state_suicides)=="CVE_ENT"] <- "region"
+
+
+
+male_state_suicide_plot<- mxhexbin_choropleth(male_state_suicides, num_colors = 4) +
+ labs(title = "Average Age of Male Suicide Cases 1998-2017",
+       subtitle = "",
+      legend = "Age",
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette=ami_pal("green")(4)) +
+theme_amiplots
+
+female_state_suicide_plot<- mxhexbin_choropleth(female_state_suicides, num_colors = 4) +
+ labs(title = "Average Age of Female Suicide Cases 1998-2017",
+       subtitle = "",
+      legend = "Age",
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette='OrRd') +
+theme_amiplots 
+
+
 suicides_state_yearly <- dplyr:: left_join(suicides_state_yearly, state_population,by=c("state_ocur"="cve_edo", "year_merge"="variable"))
 #rm(death_certificates)
 suicides_state_yearly<-suicides_state_yearly %>% 
@@ -919,36 +958,33 @@ state_average_suicide<-suicides_state_yearly%>%
 state_average_suicide<-state_average_suicide[which(state_average_suicide$state_ocur!= 99 & state_average_suicide$state_ocur!=33 & state_average_suicide$state_ocur!=35),]
 
 ## PLOT THE HEXBINS ####
-df_mx_state<- select (df_mxstate, c(region, state_name, state_name_official, state_abbr,pop))
-df_mx_state<-merge(x=df_mx_state, y=state_average_suicide, by.x='region', by.y="state_ocur")
+# df_mx_state<- select (df_mxstate, c(region, state_name, state_name_official, state_abbr,pop))
+# df_mx_state<-merge(x=df_mx_state, y=state_average_suicide, by.x='region', by.y="state_ocur")
 
 colnames(df_mx_state)[colnames(df_mx_state)=="rate"] <- "value"
 
-library("mxmaps")
-library("viridis")
-library("scales")
 
-state_suicide_rate_plot<- mxhexbin_choropleth(df_mx_state, num_colors = 1) +
-  scale_fill_gradient("Rate",low=ami_cols("green"), high = ami_cols("orange")) +
-   labs(title = "Average Suicide Rate 1998-2017",
-       subtitle = "Southeastern states show the higher suicide rates",
-       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") +
-  
-  
- theme(plot.title = element_text(size = 14, family = "Karla", face='bold')) +
-  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain")) + 
-    theme(text=element_text(family="Karla")) +
-        theme(legend.key=element_rect(fill="white", colour="white")) +
-  theme(plot.caption = element_text(family="Karla", size=7)) 
-state_suicide_rate_plot
+
+# state_suicide_rate_plot<- mxhexbin_choropleth(df_mx_state, num_colors = 1) +
+#   scale_fill_gradient("Rate",low=ami_cols("green"), high = ami_cols("orange")) +
+#    labs(title = "Average Suicide Rate 1998-2017",
+#        subtitle = "Southeastern states show the higher suicide rates",
+#        caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") +
+#   
+#   
+#  theme(plot.title = element_text(size = 14, family = "Karla", face='bold')) +
+#   theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain")) + 
+#     theme(text=element_text(family="Karla")) +
+#         theme(legend.key=element_rect(fill="white", colour="white")) +
+#   theme(plot.caption = element_text(family="Karla", size=7)) 
+# state_suicide_rate_plot
 
 
 ### MUNICIPAL SUICIDES ####
 
 mun_shape <- st_read(here::here("Data/muni_2012gw/Muni_2012gw.shp"))
 mun_shape<-st_simplify(mun_shape)
-state_shape<- st_read(here::here("data/state_boundaries/dest_2015gw/dest_2015gw.shp"))
-state_shape<-st_simplify(state_shape)
+
 
 suicides_municipal_yearly <-
   filter(death_certificates, non_natural_causes== 'Suicide') %>% 
