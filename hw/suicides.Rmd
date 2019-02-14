@@ -224,6 +224,36 @@ In the last 12 years, scholars and policy makers have paid special attention to 
 
 Chart 1 shows the trend in the overall pattern of mortality in Mexico. It is important to note that there is a smooth increase in mortality rates starting in 2005, one year before the so called war on drugs was implemented by former President Felipe Calderon. We can distinguish a period in which monthly mortality rates fluctuated around 30 deaths, and then there is a smooth jump above 30 that persists until 2017.
 
+```{r}
+monthly_death_national<-monthly_death_national %>% 
+                        mutate(log_rate= log(death_rate))
+
+death_filtered <- deaths_base100 %>%
+  filter(non_natural_causes=="Suicide") 
+war_operations_df <- monthly_death_national %>%
+  filter(non_natural_causes=="War Operations")
+homicides_df <- deaths_base100 %>%
+  filter(non_natural_causes=="Homicide") 
+
+deaths_base100<-monthly_death_national %>% 
+  mutate(index = case_when(non_natural_causes=="Accident" ~ (death_rate*100/4.10),  
+                           non_natural_causes=="Homicide" ~ (death_rate*100/1.09),
+                           non_natural_causes=="Don't know" ~ (death_rate*100/.26),
+                           non_natural_causes=="Suicide" ~ (death_rate*100/.286),
+                           non_natural_causes=="N.A/Natural Death" ~ (death_rate*100/29.8),
+                         non_natural_causes=="War Operations" ~ (death_rate*100/0.00103)))
+
+ggplot() + 
+  # draw the original data series with grey
+geom_line(aes(x=yearmonth, y=index, group = non_natural_causes), data = subset(deaths_base100, non_natural_causes!="War Operations"), colour = alpha("grey", 0.7)) +
+  # colourise only the filtered data
+  geom_line(aes(x=yearmonth, y=index, colour = ami_cols("green")), data = death_filtered) +
+  # colourise only the filtered data
+  geom_line(aes(x=yearmonth, y=index), data = homicides_df, alpha=.3)
+
+```
+
+
 
 ```{r, total rate plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## TOTAL ####
