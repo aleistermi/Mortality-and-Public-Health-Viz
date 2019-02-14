@@ -324,7 +324,7 @@ accidents_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("A
   ylim(2, 5) +
   ylab('Monthly Rate') +
   geom_line(color=ami_cols("green"), alpha=.9)  +
-  labs(title = "1D. Dwindling accidents",
+  labs(title = "1C. Dwindling accidents",
        subtitle = "Accident-related deaths show a smooth decrease in the last 20 years",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
@@ -336,50 +336,50 @@ accidents_plot
         
 ```
 
-### E. Homicides
-This is probably the chart that has received the most detailed analysis by scholars in Mexico in recent years. We can distinguish four periods. First, before 2006, we observe a secular decline in the rate of homicides. Using other data sources, we observe how this trend had at least 20 years of decline before 2006, and it was mostly explained because a land reform, implemented during the eighties, put an end to conflicts around land-owning disputes that usually ended with violence. Second, this declining trend ended with the implementation of the so called 'war on drugs', which premise was to use the military forces to dismantle drug cartels. We observe a sharp increase in homicides rate until 2011, and then a third short period in which the rate decreased. Then, after 2015, the rate increased again.
+### D. Homicides
+We can distinguish four periods in the homicides trend. First, before 2006, there was a secular decline for at least 20 years before 2006. This was mostly explained due to a land reform, implemented during the eighties, that put an end to land-owning diputes that frequently ended with violent solutions. Second, this declining trend ended with the implementation of the so called 'war on drugs', which premise was to use the military forces to dismantle drug cartels. We observe a sharp increase in homicides rate until 2011. Between 2011 and 2015 homicides rate started to show a decreasing trend; though the causes have not been clearly explained, some scholars attribute it to a more effective use of force; the dismantling of the "Zetas", the most violent cartel at the moment, and the momentary prevalence of a single powerful cartel (The Sinaloa Cartel). Then, after 2015, the rate increased again. Again, though there is no a consensus that explain this renewed upward trend, some argue that the inaction of former President Pena Nieto's government to face this problem, jointly with a persistent fragmentation of cartels, allowed these organizations to reorganize and dispute territories and rents against other cartels.
 
 ```{r, Homicides plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## Homicides ####
 homicide_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("Homicide")), aes(x=yearmonth, y=death_rate)) +
   ylim(0, 2.5) +
   ylab('Monthly Rate') +
-  geom_line(color=ami_cols("green"))  +
+  geom_line(color=ami_cols("green"), alpha=0.9)  +
   ylab('Monthly Rate') +
   geom_vline(xintercept =2006.917 , linetype="dotted", 
                 color = ami_cols("orange"), size=.5)+ 
     geom_text(aes(x=2007.1, label="War on drugs starts", y=.20), colour=ami_cols("orange"), hjust = 0) +
-labs(title = "1E. Homicides rate: an upward trend",
-       subtitle = "After a substantive decrease between 2011-2015, homicides rate shows a sharp upward trend",
+labs(title = "1D. Homicides rate: an upward trend",
+       subtitle = "After a substantive decrease between 2011-2015,\n homicides rate shows a sharp upward trend again",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")+
 theme_ami
 homicide_plot
 ```
 
-### F. War operations related deaths
+### E. War operations related deaths
 
-This is a pretty much new classification that started to be used in the certificate deaths in 2004. We can distinguish a period between 2011 and 2015 in which both the month-to-month levels and variation in this rate increased. As the chart shows, the spikes are more frequent and of larger magnitude. Then, after this period, the spikes become shorter and the rate decreased too. I assume that these deaths are related to the army forces that lost their lives in different operations, mostly related to the fight against drug cartels. An interesting hypothesis to explore is the fact that this period of large variation also corresponds to the period of homicides decline, suggesting that a major involvement of the army forces may had a dissuasive effect on the probability of commiting homicides. 
+This classificationis recent, and shows an interesting pattern. We can distinguish a period between 2011 and 2015 in which both the month-to-month levels and variation  increased. During this period, the spikes are more frequent and of larger magnitude, suggesting a very intense and volatile behavior in this type of deaths. Then, after 2015, the spikes length become shorter. A reasonable assumption is that these deaths are related to the army forces that participated in different operations, mostly related to the fight against drug cartels. An interesting hypothesis to explore is the fact that this period of large variation also corresponds to the period of homicides decline, suggesting that a major involvement of the army forces may had a dissuasive effect on the probability of commiting homicides.
+
 ```{r, wat deaths plotline, message=FALSE, echo=FALSE, warning=FALSE}
 ## WAR DEATHS #### jun 2010
 war_plot=ggplot(subset(monthly_death_national,non_natural_causes %in% c("War Operations") & ANIO_OCUR>2003), aes(x=yearmonth, y=death_rate)) +
   ylim(0, .03) +
   ylab('Monthly Rate') +
-  geom_line(color=ami_cols("green"))  +
+  geom_line(color=ami_cols("green"), alpha=0.9)  +
   stat_smooth(
-    color = ami_cols("orange"), alpha=.04,
+    color = ami_cols("orange"), alpha=.25,
     method = "loess", se = FALSE) +
   geom_vline(xintercept =2010.417, linetype="dotted", 
                 color = ami_cols("orange"), size=.5)+
    geom_vline(xintercept =2015.083, linetype="dotted", 
                 color = ami_cols("orange"), size=.5)+ 
   geom_text(aes(x=2012.417, label="Decrease in \n homicides rate", y=.0265), colour=ami_cols("orange")) +
-    labs(title = "1F. War operations: the costs of decreasing the homicides rate?",
+    labs(title = "1E. War operations: the costs of decreasing the homicides rate?",
        subtitle = "Deaths show a greater variance and levels between 2011 and 2015, \na coincident period with the temporal drop in homicides",
        caption = "Source: National Institute of Statistics and Geography (INEGI)", 
        x = "Year", y = "Monthly Rate (per 100k)")  +
-  
-theme_ami
+  theme_ami
 war_plot
 
 ```
