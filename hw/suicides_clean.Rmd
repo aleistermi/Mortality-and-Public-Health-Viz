@@ -99,14 +99,15 @@ ami_palettes <- list(
   
   `multi`  = ami_cols('red', 'orange', 'green', 'blue', 'grey', 'dark grey'),
 
-  `grey`   = ami_cols("dark_grey"),
+  `grey_green`   = ami_cols("dark_grey", "green2"),
 
-  `blue` = ami_cols("blue"),
+  `blue_green` = ami_cols("blue", "green2"),
 
   `red`  = ami_cols("red"),
-  `green_orange`  = ami_cols("green", "orange"),
-  `green` = ami_cols("green"),
-  `orange` = ami_cols("orange")
+  `green_orange`  = ami_cols("green2", "orange"),
+  `purple_green2` = ami_cols("green2", "purple"),
+  `bluish` = ami_cols("blue", "blue2")
+  
 )
 
 ami_pal <- function(palette = "cool", reverse = FALSE, ...) {
@@ -167,7 +168,8 @@ theme_amiplots<-
   theme(plot.caption = element_text(family="Karla", size=7))  +
   theme(legend.title = element_text(face="bold")) +
   theme(legend.background = element_rect()) +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+   theme(legend.background = element_rect(colour = '#00000000', fill = '#00000000'))
 ```
 
 ```{r prepare data chart 1, echo=FALSE}
@@ -649,51 +651,6 @@ heat_map_suicide_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide
   theme(axis.text.x=element_text(size=6.5))
 
 heatmaps<-ggarrange(heat_map_suicide_male, heat_map_suicide_female, ncol=1)
-#heatmaps
-# heatmaps<-plot_grid(heat_map_suicide_male, heat_map_suicide_female, ncol=1, nrow=1, align = "hv", axis='l', rel_widths = 1, rel_heights = 1) 
-# heatmaps
-## HOMICIDES########
-# daily_homicides<-death_certificates[which(death_certificates$non_natural_causes=="Homicide"),] 
-# daily_homicides <-  daily_homicides  %>%
-#   mutate(day_of_homicide=weekdays(as.Date(date_death)))
-# 
-# 
-# daily_homicides$numeric_time<- as.POSIXct(daily_homicides$time_death, format = "%H:%M:%S")
-# daily_homicides$hour_homicide <- hour(daily_homicides$numeric_time)
-# 
-# daily_homicides <-
-#   daily_homicides %>% 
-#   group_by(hour_homicide, day_of_homicide) %>% 
-#   tally()
-# 
-# daily_homicides$day_of_homicide <- factor(daily_homicides$day_of_homicide, levels = c("Sunday",  'Saturday', 'Friday', "Thursday",  "Wednesday", "Tuesday", "Monday" ))
-# 
-# p_hom <- ggplot(daily_homicides %>% filter(!is.na(day_of_homicide)), aes(hour_homicide, day_of_homicide,  fill=n)) +  
-#   # stat_density(aes(fill = stat(count)), geom = "raster", position = "identity") +
-#   # #geom_raster() +
-#   #geom_raster() 
-#  #stat_density(aes(fill = stat(density)), geom = "raster", position = "identity")
-#  geom_tile(aes(fill = n), color="white") +
-# scale_fill_gradient2(high = "darkred") + #scale_x_discrete(position = "top")+
-#     scale_x_continuous(position = "top", breaks=daily_homicides$hour_homicide) +
-#   ggtitle("Homicides by weekday and time of the day")+
-#   labs( #subtitle = "Average rate of growth 1999-2017",
-#       caption="Source: INEGI and CONAPO" , x = "Time", y = "Day") +
-#   theme(
-#   panel.background = element_rect(fill = 'white',
-#                                 colour = ami_cols("light grey"),
-#                                 size = 0.3, linetype = "solid"),
-#   panel.grid.major = element_line(size = 0.15, linetype = 'solid',
-#                                 colour = ami_cols("light grey")), 
-#   panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
-#                                 colour = "dark grey")) +
-#   theme(plot.title = element_text(size = 14, family = "Georgia-Bold"))+
-#   theme(plot.subtitle = element_text(size=12, family = "Georgia", face = "plain"))+
-#     theme(text=element_text(family="Georgia"))+
-#      theme(  axis.text.x=element_text(colour="black", family = "Georgia", size = 7, face = "plain"))+
-#     theme (axis.text.y=element_text(colour="black", family = "Georgia", size = 10, face = "plain"))+
-#         theme(legend.key=element_rect(fill="white", colour="white")) +
-#   theme(plot.caption = element_text(family="Georgia", size=7))
 
 
 ```
@@ -702,32 +659,8 @@ heatmaps<-ggarrange(heat_map_suicide_male, heat_map_suicide_female, ncol=1)
 
 
 
-```{r, include=FALSE}
-# theme<- theme(element_line(colour = "blue", size = 6, linetype = "solid",
-#   lineend = round), rect, text, title, aspect.ratio, axis.title, axis.title.x,
-#   axis.title.x.top, axis.title.x.bottom, axis.title.y, axis.title.y.left,
-#   axis.title.y.right, axis.text, axis.text.x, axis.text.x.top,
-#   axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right,
-#   axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom,
-#   axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right, axis.ticks.length,
-#   axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y,
-#   axis.line.y.left, axis.line.y.right, legend.background, legend.margin,
-#   legend.spacing, legend.spacing.x, legend.spacing.y, legend.key,
-#   legend.key.size, legend.key.height, legend.key.width, legend.text,
-#   legend.text.align, legend.title, legend.title.align, legend.position,
-#   legend.direction, legend.justification, legend.box, legend.box.just,
-#   legend.box.margin, legend.box.background, legend.box.spacing,
-#   panel.background, panel.border, panel.spacing, panel.spacing.x,
-#   panel.spacing.y, panel.grid, panel.grid.major, panel.grid.minor,
-#   panel.grid.major.x, panel.grid.major.y, panel.grid.minor.x,
-#   panel.grid.minor.y, panel.ontop, plot.background, plot.title,
-#   plot.subtitle, plot.caption, plot.tag, plot.tag.position, plot.margin,
-#   strip.background, strip.background.x, strip.background.y,
-#   strip.placement, strip.text, strip.text.x, strip.text.y,
-#   strip.switch.pad.grid, strip.switch.pad.wrap, ..., complete = FALSE,
-#   validate = TRUE)
 
-```
+
 
 ```{r load data for maps, echo=FALSE, warning=FALSE, include=FALSE, results='hide', message=FALSE}
 # install.packages(c("cowplot", "googleway", "ggrepel", 
@@ -739,7 +672,7 @@ heatmaps<-ggarrange(heat_map_suicide_male, heat_map_suicide_female, ncol=1)
   #scale_fill_gradient(name = 'Rate(#/100k)',low = ami_cols("green"), high = ami_cols('orange')) +
   #scale_colour_gradientn(colors=ami_pal("cool")(4)) +
   #scale_fill_brewer( color=ami_cols("green"), name = "Rate (#/100K)" )+
-load(here::here("Data/diego_valle/df_mxstate.RData"))
+#load(here::here("Data/diego_valle/df_mxstate.RData"))
 
 ```
 
@@ -761,13 +694,6 @@ suicides_state_yearly <-
   filter(death_certificates, non_natural_causes== 'Suicide') %>% 
   group_by(state_ocur, ANIO_OCUR) %>% 
   tally()
-
-state_population<- irs %>%
-  group_by(cve_edo) %>%
-  summarize(tot00 = sum(pop2000, na.rm = TRUE),
-            tot05 = sum(pop2005, na.rm = TRUE),
-            tot10=sum(pop2010, na.rm=TRUE),
-            tot15=sum(pop2015, na.rm=TRUE))
 
 ## Have to do this because there is no single ID (as compared to municipal data)
 suicides_state_yearly<-suicides_state_yearly %>% 
@@ -801,14 +727,22 @@ male_state_suicide_plot<- mxhexbin_choropleth(male_state_suicides, num_colors = 
  labs(title = "Average Age of Male Suicide Cases 1998-2017",
        subtitle = "",
       legend = "Age",
-       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette=ami_pal("green")(4), direction=-1) +
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_manual("Age Range", values=c('#2171b5',
+'#4d8dc3',
+'#90b8da',
+'#d2e2f0'
+))  +
 theme_amiplots
 
 female_state_suicide_plot<- mxhexbin_choropleth(female_state_suicides, num_colors = 4) +
  labs(title = "Average Age of Female Suicide Cases 1998-2017",
        subtitle = "",
       legend = "Age",
-       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_brewer(palette='OrRd', direction=-1) +
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_manual("Age Range", values=c('#7aba95',
+'#94c7aa',
+'#bcdcca',
+'#e4f1e9'
+)) +
 theme_amiplots 
 
 
@@ -821,27 +755,7 @@ state_average_suicide<-suicides_state_yearly%>%
   summarise_at(vars(rate), funs(mean(., na.rm=TRUE)))
 state_average_suicide<-state_average_suicide[which(state_average_suicide$state_ocur!= 99 & state_average_suicide$state_ocur!=33 & state_average_suicide$state_ocur!=35),]
 
-## PLOT THE HEXBINS ####
-# df_mx_state<- select (df_mxstate, c(region, state_name, state_name_official, state_abbr,pop))
-# df_mx_state<-merge(x=df_mx_state, y=state_average_suicide, by.x='region', by.y="state_ocur")
-
 colnames(df_mx_state)[colnames(df_mx_state)=="rate"] <- "value"
-
-
-
-# state_suicide_rate_plot<- mxhexbin_choropleth(df_mx_state, num_colors = 1) +
-#   scale_fill_gradient("Rate",low=ami_cols("green"), high = ami_cols("orange")) +
-#    labs(title = "Average Suicide Rate 1998-2017",
-#        subtitle = "Southeastern states show the higher suicide rates",
-#        caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") +
-#   
-#   
-#  theme(plot.title = element_text(size = 14, family = "Karla", face='bold')) +
-#   theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain")) + 
-#     theme(text=element_text(family="Karla")) +
-#         theme(legend.key=element_rect(fill="white", colour="white")) +
-#   theme(plot.caption = element_text(family="Karla", size=7)) 
-# state_suicide_rate_plot
 
 
 ### MUNICIPAL SUICIDES ####
@@ -880,11 +794,11 @@ mun_shape<- mun_shape %>%
 colnames(mun_shape)[colnames(mun_shape) == 'state_mun_OCUR'] <- 'region'
 colnames(mun_shape)[colnames(mun_shape) == 'rate_cut'] <- 'value'
 
-municipal_suicides_plot<-mxmunicipio_choropleth(mun_shape)+ scale_fill_brewer("Rate/100K", type = "qual", palette= ami_pal(palette="green_orange")(4), na.value=ami_cols("dark grey")) +
+municipal_suicides_plot<-mxmunicipio_choropleth(mun_shape)+ scale_fill_manual("Rate/100K", values=c('#d2e2f0', '#90b8da','#4d8dc3', '#2171b5'), na.value=ami_cols("dark grey"))  +
   labs(title = "20-years Annual Average Municipal \nSuicide Rate (1998-2017)",
        legend = "Rate (#/100K)", 
        caption = "Source: INEGI, CONAPO and Diego Valle's Blog (https://www.diegovalle.net) ") +
-  annotate(geom = "text", x = -95, y = 31, label = "Mexico National \nAverage: 5.2", size = 4, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 30, label = "World Average: 10.5", size = 4, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 29, label = "US Average: 13.7", size = 4, hjust = 0, family="Karla") +
+  annotate(geom = "text", x = -95, y = 31, label = "Mexico National Average: 5.2", size = 4, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 30, label = "World Average: 10.5", size = 4, hjust = 0, family="Karla") + annotate(geom = "text", x = -95, y = 29, label = "US Average: 13.7", size = 4, hjust = 0, family="Karla") +
   theme_amiplots
 
 municipal_suicides_plot[["layers"]][[1]][["aes_params"]][["colour"]] <- "transparent"
