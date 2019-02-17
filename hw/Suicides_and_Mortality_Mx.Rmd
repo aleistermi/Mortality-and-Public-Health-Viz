@@ -1,0 +1,860 @@
+---
+title: "Static Portfolio"
+author: "Aleister Montfort"
+date: "2/17/2019"
+output: 
+  html_document:
+    css: style.css
+    code_folding: "hide"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r libraries1, message=FALSE, include=FALSE}
+library(ggplot2)
+library(here)
+library(zoo)
+#library(lubridate)
+library(dplyr)
+library(ggridges)
+```
+
+```{r, include=FALSE}
+rm(list = ls())
+path = here("death_certificates.RData")
+print(path)
+data = load(path)
+
+```
+
+```{r, load data, include=FALSE}
+here()
+path = here("death_certificates.RData")
+print(path)
+data = load(path)
+```
+```{r, upload other data, include=FALSE}
+
+path_gini15=here::here("/gini2015.RData")
+load(path_gini15)
+path_gini15=here::here("/gini2010.RData")
+
+path_irs = here::here("/irs.RData")
+load(path_irs)
+path_pop_cohort=here::here("/pop_by_cohort.RData")
+load(path_pop_cohort)
+
+```
+
+```{r colors, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
+## COLORS ####
+#Source of this and the palette function: https://drsimonj.svbtle.com/creating-corporate-colour-palettes-for-ggplot2
+
+ami_colors <- c(             # I will use these colors
+  `red`        = "#ff3333", 
+  `green`      = "#318333",
+  `blue`       = '#2171b5', 
+  `light_blue`   = '#eff3ff',
+  `orange`     = "#e19509",
+  `light grey` = "#f7f7f7",
+  `dark grey`  = "#808080",
+  `peach` = "#FF8C76",
+  `pink`= "#F082B3",
+  `green2`= "#6da786",
+  `green3` = "#4E7F35",
+  `blue2`= "#4C64E8",
+  `purple`= '#912FF7')
+
+ami_cols <- function(...) { # And create this function to have them ready without typying the HEX Code
+  cols <- c(...)
+  if (is.null(cols))
+    return (ami_colors)
+  ami_colors[cols]
+}
+## Palettes ####
+ami_palettes <- list(
+  `redish`  = ami_cols('red', 'orange'),
+
+  `cool`  = ami_cols('blue2', 'green2', "orange"),
+  
+  `multi`  = ami_cols('red', 'orange', 'green', 'blue', 'grey', 'dark grey'),
+
+  `grey_green`   = ami_cols("dark_grey", "green2"),
+
+  `blue_green` = ami_cols("blue", "green2"),
+
+  `red`  = ami_cols("red"),
+  `green_orange`  = ami_cols("green2", "orange"),
+  `purple_green2` = ami_cols("green2", "purple"),
+  `bluish` = ami_cols("blue", "blue2")
+  
+)
+
+## PALETTES####
+ami_pal <- function(palette = "cool", reverse = FALSE, ...) {
+  pal <- ami_palettes[[palette]]
+
+  if (reverse) pal <- rev(pal)
+
+  colorRampPalette(pal, ...)
+}
+
+scale_color_ami <- function(palette = "cool", discrete = TRUE, reverse = FALSE, ...) {
+
+  pal <- ami_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("colour", paste0("ami_", palette), palette = pal, ...)
+  } else {
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
+scale_fill_ami <- function(palette = "main", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- ami_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("fill", paste0("ami_", palette), palette = pal, ...)
+  } else {
+    scale_fill_gradient2(colours = pal(256), ...)
+  }
+}
+
+##THEMES ####
+theme_ami<-
+  theme(
+  panel.background = element_rect(fill = 'white',
+                                colour = ami_cols("light grey"),
+                                size = 0.3, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.15, linetype = 'solid',
+                                colour = ami_cols("light grey")), 
+  panel.grid.minor = element_line(size = 0.1, linetype = 'solid',
+                                colour = "dark grey")) +
+  theme(plot.title = element_text(size = 14, family = "Karla", face='bold', hjust=0))+
+  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain",hjust=0))+
+    theme(text=element_text(family="Karla"))+
+     theme( axis.text.x=element_text(colour="black", family = "Karla", size = 10, face = "plain"))+
+    theme (axis.text.y=element_text(colour="black", family = "Karla", size = 10, face = "plain"))+
+        theme(legend.key=element_rect(fill="white", colour="white")) +
+  theme(plot.caption = element_text(family="Karla", size=7)) +
+  theme(text = element_text(family = "Karla")) +
+  theme(line = element_line(color=ami_cols("green"))) 
+  
+
+theme_amiplots<-
+ theme(plot.title = element_text(size = 16, family = "Karla", face='bold', hjust=.5)) +
+  theme(plot.subtitle = element_text(size=12, family = "Karla", face = "plain", hjust=0.5)) + 
+    theme(text=element_text(family="Karla")) +
+        theme(legend.key=element_rect(fill="white", colour="white")) +
+  theme(plot.caption = element_text(family="Karla", size=7))  +
+  theme(legend.title = element_text(face="bold")) +
+  theme(legend.background = element_rect()) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+   theme(legend.background = element_rect(colour = '#00000000', fill = '#00000000'))
+```
+
+```{r palettes, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
+
+```
+
+```{r themes, echo=TRUE}
+
+```
+
+```{r prepare data chart 1, include=FALSE, message=FALSE, echo=FALSE}
+
+## Subset the data ####
+death_certificates <- subset(death_certificates, year_death>1997 & year_death!=9999)
+## Estimate total monthly deaths ####
+death_certificates$yearmonth <- as.yearmon(paste(death_certificates$year_death, death_certificates$month_death), "%Y %m")
+
+death_certificates <- death_certificates%>%
+    mutate(non_natural_causes = if_else(is.na(non_natural_causes), "N.A/Natural Death", non_natural_causes))
+
+## Monthly deaths for non natural causes ####
+monthly_death_national <-
+  death_certificates %>% 
+  group_by(yearmonth, ANIO_OCUR, non_natural_causes) %>% 
+  tally()
+
+#print.data.frame(head(monthly_death_national))
+## Monthly deaths for all causes ####
+TOTAL_monthly_death_national <-
+  death_certificates %>% 
+  group_by(yearmonth, ANIO_OCUR) %>% 
+  tally()
+```
+
+
+```{r adding population, include=FALSE, warning=FALSE, message=FALSE}
+monthly_death_national<-
+  monthly_death_national %>% mutate(pop_divide = case_when(ANIO_OCUR<=2002 ~ sum(as.numeric(irs$pop2000), na.rm = TRUE),
+                                          ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
+                                          ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
+                                          ANIO_OCUR>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
+
+TOTAL_monthly_death_national<-
+  TOTAL_monthly_death_national %>% mutate(pop_divide = case_when(ANIO_OCUR<=2002 ~ sum(as.numeric(irs$pop2000), na.rm = TRUE),
+                                          ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ sum(as.numeric(irs$pop2005), na.rm = TRUE),
+                                          ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ sum(as.numeric(irs$pop2010), na.rm=TRUE),
+                                          ANIO_OCUR>2013 ~ sum(as.numeric(irs$pop2015), na.rm=TRUE)))
+
+mult<-100000
+monthly_death_national<-monthly_death_national %>% 
+                        mutate(death_rate=n/pop_divide*mult)
+monthly_death_national<-monthly_death_national %>% 
+                        mutate(natural= if_else((is.null(non_natural_causes) | non_natural_causes=="N.A/Natural Death"),1,0))
+TOTAL_monthly_death_national<-TOTAL_monthly_death_national %>% 
+                        mutate(death_rate=n/pop_divide*mult)                      
+```
+# 1. Introduction
+
+
+In a recent [article](https://econ.st/2WuSTSN), the British magazine "The Economist" notes that there is a global decline trend in suicides, mostly driven by China, India and Russia. The article also underlines that America is the big exception: this century, suicides' rate in America has grown 18%, and if 20 years ago China's rate doubled America's, this relationship has been reversed.
+A similar story can be told about suicides in Mexico. 
+Compared to the attention that other mortality characteristics receive, this phenomenon has been absent from the public discussion and, to our knowledge, there are no comprehensive studies that account for its characteristics, not to mention its causes. This work focuses on analyzing suicides in Mexico.[^*]
+
+[^*]: I thank Alex Engler, Cory Rand and Sinclair Target for their insightful comments to improve this work. The contents, design and mistakes are my own.
+
+
+Figure 1 shows the trend in suicides in Mexico (green line). To show how the increase in suicides compares to its level in January 1998 and to the growth of other mortality causes, all death rates were set equal to a value of 100 in January 1998. Then the value of this index reflects how much the value of a mortality rate changed as compared to the value of 100 in 1998, and how this growth compares to other mortality growth along the period 1998-2017.
+
+In the last 12 years, scholars and policy makers have paid special attention to the increase in mortality rates in Mexico. The dramatic increase in homicides, which is arguably the most important policy challenge for the Mexican authorities, has received special attention. However, as we may find an exogeous cause that triggered the spiral of violence in the country (namely, the so called "war on drugs"), we don't find an exact date or cause that points the beginning in the upward trend in suicides. Nonetheless, we observe a sustained growth since 1998: the ascendant trend in suicides started in the late 1990's and has keep growing since. This growth has been only surpassed by the increase in the homicides (line in blue), which rate has doubled since 1998, whereas in the case of suicides, the growth is about 50%.
+
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# I do jan 2008 = 100 for each category
+deaths_base100<-monthly_death_national %>% 
+  mutate(index = case_when(non_natural_causes=="Accident" ~ (death_rate*100/4.10),  
+                           non_natural_causes=="Homicide" ~ (death_rate*100/1.09),
+                           non_natural_causes=="Don't know" ~ (death_rate*100/.26),
+                           non_natural_causes=="Suicide" ~ (death_rate*100/.286),
+                           non_natural_causes=="N.A/Natural Death" ~ (death_rate*100/29.8),
+                         non_natural_causes=="War Operations" ~ (death_rate*100/0.00103)))
+# I just proved how they looked when plotted each of them
+death_filtered <- deaths_base100 %>%
+  filter(non_natural_causes=="Suicide") 
+war_operations_df <- monthly_death_national %>%
+  filter(non_natural_causes=="War Operations")
+homicides_df <- deaths_base100 %>%
+  filter(non_natural_causes=="Homicide") 
+accidents_df <- deaths_base100 %>%
+  filter(non_natural_causes=="Accident") 
+dn_df <- deaths_base100 %>%
+  filter(non_natural_causes=="Don't know")
+
+##PLOT 1 ####
+non_natural_plot<-ggplot() + 
+geom_line(aes(x=yearmonth, y=index, group = non_natural_causes), data = subset(deaths_base100, non_natural_causes!="War Operations"), colour = alpha("grey", 0.4), size=.4) +
+  geom_line(aes(x=yearmonth, y=index), data = death_filtered, colour = ami_cols("green2"), alpha=.9, size=.6) +
+  geom_line(aes(x=yearmonth, y=index), data = homicides_df, color=ami_cols("blue"),alpha=.6, size=.2) +
+ scale_x_discrete(limit = c(1998, 2003, 2008, 2013,  2018)) +
+  annotate("label", x = 2012.9, y = 202, label = "Homicides", color=ami_cols("blue"), family="Karla", size=4, alpha=.6) +
+  annotate("label", x = 2015.6, y = 182.5, label = "Suicides", color=ami_cols("green2"), family="Karla", size=4) +
+  # annotate("segment", x = 2010.2, xend = 2010.6, y = 190, yend = 185.2,
+  # colour = ami_cols("blue"))+
+  # annotate("segment", x = 2014.6, xend = 2014.7, y = 178, yend = 181,
+  # colour = ami_cols("green2"))+
+      labs(title = "1. Change in Death Rates for Different Causes in Mexico",
+       subtitle = "Suicide rate has grown about 50% since 1998 (January 1998=100)",
+       caption = "Source: INEGI and CONAPO", 
+       x = "Year", y = "Index (January 1998=100)")+
+    geom_vline(xintercept =2006.917 , linetype="dotted", 
+                color = ami_cols("blue"), size=.7)+ ylim(40, 215) +
+  geom_text(aes(x=2006.8, label="War on drugs starts", y=40, family="Karla"), size=4, color=ami_cols("blue"), hjust=1) +
+  theme_ami
+non_natural_plot
+```
+
+
+```{r testing fonts, include=FALSE}
+p1 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
+    annotate("text", 1, 1.0, label = "Karla es esta que obno",
+             family = "Karla", size = 5) +
+    annotate("text", 1, 1.1, label = "NanumGothic",
+             family = "NanumGothic", size = 5) +
+    annotate("text", 1, 1.05, label = "MerriweatherSans-BoldItalic",
+             family = "MerriweatherSans-BoldItalic", size = 5) +    
+    annotate("text", 1, 1.3, label = "HindSiliguri-Regular",
+             family = "HindSiliguri-Regular", size = 5) +     
+    annotate("text", 1, .94, label = "Dosis-Regular",
+             family = "Dosis-Regular", size = 5) +
+    annotate("text", 1, .90, label = "Assistant-Regular",
+             family = "Assistant-Regular", size = 5) +
+    annotate("text", 1, .86, label = "Arvo",
+             family = "Arvo", size = 5) +
+    annotate("text", 1, .82, label = "Wingdings-Regular",
+             family = "Wingdings-Regular", size = 5) +
+  theme(axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text  = element_blank())
+
+p2 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
+    annotate("text", 1, 1.15, label = "Advent Pro",
+             family = "Advent Pro", size = 5) +
+    annotate("text", 1, 1.1, label = "IBM Plex Mono" ,
+             family = "IBM Plex Mono" , size = 5) +
+    annotate("text", 1, 1.05, label = "Economica",
+             family = "Economica", size = 5) +    
+    annotate("text", 1, 1, label = "Alegreya Sans",
+             family = "Alegreya Sans", size = 5) +     
+    annotate("text", 1, .94, label = "Cabin Condensed",
+             family = "Cabin Condensed", size = 5) +
+    annotate("text", 1, .90, label = "Hind Guntur",
+             family = "Hind Guntur", size = 5) +
+    annotate("text", 1, .86, label = "Domine"  ,
+             family = "Domine"  , size = 5) +
+    annotate("text", 1, .82, label = "Advent Pro Medium",
+             family = "Advent Pro Medium", size = 5) +
+  theme(axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          axis.text  = element_blank())
+# font_import(paths = here("fonts (1)")) 
+#loadfonts() advent pro economica o karla ("Advent Pro", "IBM Plex Mono", "Economica", "Alegreya Sans", "Cabin Condensed", "Hind Guntur", "Domine")
+```
+
+# 2. Suicides in Mexico
+
+## 2.1 Trends by Age Cohort
+
+
+Different analysis of suicides have shown that there are important variations across population cohorts. In the case of Mexico, these differences are remarkable. The suicides rate shows the largest increase among the young: for the 15-35 years old cohort, rate increased from around 6 cases per 100k inhabitants, to a little bit more than 8 in 2017; an increase of about 30%. This growth is also remarkable among the 35-50 cohort, which rose from around 5 to 7 cases per 100k. Among the 50-70 cohort we observe an relatively stable average (though it may seem to exist a seasonality pattern). Finally, in the elder cohort we see a continous drop in suicides (from around 7 to around 5 cases per 100k).
+```{r cohort trends data, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
+## DATA FOR COHORTS ####
+suicides_by_cohort<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
+# Let's re arrange the cohort population dataset#
+library(reshape2)
+pop_cohort2 <- melt(pop_by_cohort, id=c("cohort"))
+colnames(pop_cohort2)[colnames(pop_cohort2)=="variable"] <- "year_merge"
+colnames(pop_cohort2)[colnames(pop_cohort2)=="value"] <- "population"
+colnames(pop_cohort2)[colnames(pop_cohort2)=="cohort"] <- "age_cohort"
+pop_cohort2$year_merge1<-as.numeric(pop_cohort2$year_merge)
+pop_cohort2<-pop_cohort2 %>% 
+  mutate(year_merge1 = case_when(year_merge1==1 ~ 1995,
+                                           year_merge1==2 ~ 2000,
+                                           year_merge1==3 ~ 2005,
+                                           year_merge1==4 ~ 2010,
+                                           year_merge1==5 ~ 2015))
+
+pop_cohort2$year_merge <- NULL
+colnames(pop_cohort2)[colnames(pop_cohort2)=="year_merge1"] <- "year_merge"
+
+suicides_by_cohort <-suicides_by_cohort %>%  mutate(age_cohort = case_when(age_years<15 ~ 'Less than 15',
+                                           age_years>=15 & age_years<35 ~ '15 to 35',
+                                           age_years>=35 & age_years<50 ~ '35 to 50',
+                                           age_years>=50 & age_years<70 ~ '50 to 70',
+                                           age_years>=70 ~ 'More than 70'))
+
+suicides_by_cohort_total <-
+  suicides_by_cohort %>% 
+  group_by(age_cohort, year_death) %>% 
+  tally()
+
+suicides_by_cohort_total<-suicides_by_cohort_total %>% 
+  mutate(year_merge = case_when(year_death<2000 ~ 1995,
+                                           year_death>=2000 & year_death<=2004 ~ 2000,
+                                           year_death>=2005 & year_death<= 2009 ~ 2005,
+                                           year_death>=2010 & year_death<= 2015 ~ 2010,
+                                           year_death>2015 ~ 2015))
+
+final_suicides_by_cohort <- dplyr:: left_join(suicides_by_cohort_total, pop_cohort2,
+                                              by=c("age_cohort"="age_cohort", "year_merge"="year_merge"))
+
+final_suicides_by_cohort<-final_suicides_by_cohort  %>%
+   mutate(rate_suicides_bycohort = n/population*100000)
+
+final_suicides_by_cohort$ordered_cohort <- factor(final_suicides_by_cohort$age_cohort, levels = c("Less than 15", "15 to 35", "35 to 50", "50 to 70", "More than 70"))
+
+```
+
+```{r cohorts plot, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE,  results='hide'}
+## COHORTS PLOT####
+cohortsplot=ggplot(final_suicides_by_cohort %>% filter(!is.na(ordered_cohort) & ordered_cohort!="Less than 15"), aes(x=year_death, y=rate_suicides_bycohort, color=age_cohort)) +
+  geom_step() +
+  facet_wrap(~ ordered_cohort) +
+  ggtitle("2. Suicides are ramping up among young population")+
+  labs( subtitle = "Rates of suicides by age cohort 1998-2017",
+      caption="Source: INEGI and CONAPO \n To estimate rates by cohort, the total number of cases was divided by the population of a specific cohort" ,x = "Year", y = "Rate/100K") +
+  scale_color_manual(values=c("#7ABA95" ,"#7ABA95" ,'#2171b5','#2171b5'), guide=FALSE )+
+  scale_alpha_manual(values=c(0.9,0.9,0.6,0.6)) +
+  theme_ami
+cohortsplot
+
+```
+
+
+## 2.2 Male and Female Suicides
+
+As relevant as the variation among cohorts,  differences between sex are noticeable. From the total cases of suicides since 1998, 82% correspond to male suicides, and 18% to female. The violin plot in Figure 2 analyzes the distribution of ages across males and females who commited suicide. The dotted lines correspond to the percentiles 25, 50, and 75, and the number within the chart corresponds to the average age for each group. 
+
+There are three important things to notice form the violinplot. First, women who committed suicide are on average younger than men by an approximate difference of 6 years (in 2017, 31.6 vs 36.1 years old). For all the period 1998-2017, the mean age for males is around 36.1 years old, and for females is 30.5. Second, the average age of suicide has slightly increased in the last 20 years for both men and women. This increase in the average age seems to be concentrated in the age cohort between 25 and 50 years old. Third, the distribution of male age has become more evenly distributed, in the sense that the shape of the violin plot has become more cylindrical or thin; that is, there are more cases evenly distributed among the young male population (less than 50 years old). On the other hand, the distribution of female cases keeps a more clear "pear" shape.
+
+```{r violinsplot data, echo=TRUE, warning=FALSE, message=FALSE}
+library(ggridges)
+suicides_by_sex<- death_certificates %>% select(non_natural_causes,sex, age_years, year_death)
+
+suicides_by_sex <- subset(suicides_by_sex, (non_natural_causes=="Suicide") & (year_death==1998 | year_death==2008 |year_death==2017)  & sex!="Not specified") 
+
+stat_sum_df <- function(fun, geom="crossbar", ...) {
+  stat_summary(fun.data = fun, colour = "red", geom = geom, width = 0.2, ...)
+}
+```
+
+```{r violinsplot means, echo=FALSE, warning=FALSE, message=FALSE}
+
+mean_male_98<-suicides_by_sex %>% filter(sex=="Male" & year_death==1998) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_male_08<-suicides_by_sex %>% filter(sex=="Male" & year_death==2008) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_male_17<-suicides_by_sex %>% filter(sex=="Male" & year_death==2017) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+
+mean_female_98<-suicides_by_sex %>% filter(sex=="Female" & year_death==1998) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_female_08<-suicides_by_sex %>% filter(sex=="Female" & year_death==2008) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+mean_female_17<-suicides_by_sex %>% filter(sex=="Female" & year_death==2017) %>%select(age_years) %>% summarize(mean(age_years, na.rm = TRUE))
+```
+
+```{r plotting violins, echo=TRUE, warning=FALSE, message=FALSE}
+
+dat_text1 <- data.frame(
+  label = c(28.9, 30.4, 31.6),
+  year_death   = c(1998, 2008, 2017),
+  Sex     = c("Female", "Female", "Female"),
+  age_years     = c(28.9, 30.4, 31.6)
+)
+dat_text2 <- data.frame(
+  label = c(34.6, 36.5, 36.1),
+  year_death   = c(1998, 2008, 2017),
+  Sex     = c("Male", "Male", "Male"),
+  age_years     = c(34.6, 36.5, 36.1)
+)
+
+colnames(suicides_by_sex)[colnames(suicides_by_sex)=="sex"] <- "Sex"
+
+violines<-ggplot(suicides_by_sex, aes(y=age_years, x=Sex, fill=Sex), alpha=.1) +
+  geom_violin(alpha=.6) +
+  scale_fill_manual(values=c('#7ABA95', '#2171b5')) +
+ geom_violin(draw_quantiles = c(0.25, .5, 0.75), linetype = "dashed",show.legend = FALSE, alpha=0.1)  + 
+geom_violin(fill= 'transparent', alpha=0.1) +
+  facet_wrap(~ year_death) +
+geom_text(
+  data    = dat_text1,
+  mapping = aes(y = age_years, x = Sex,  label = label), size=3, family="Karla") +
+geom_text(
+  data    = dat_text2,
+  mapping = aes(y = age_years, x = Sex,  label = label), size=3, family="Karla")+
+  ggtitle("3. Age Distribution of Suicide Cases by Sex in 1998, 2008 and 2017")+
+  labs( subtitle = "Females commit suicide younger. Among males, suicides are becoming more evenly distributed in ages 25-40's",
+      caption="Source: INEGI" ,x = "Sex", y = "Years") +
+  theme_ami
+
+violines
+```
+
+## 2.3 Spatial Distribution of Suicides
+
+Map 1 shows the rate of suicides at the municipal level. The break values used to color the map are  the national Mexican average (5.2 cases per 100 thousand inhabitants); the world average (10.5), and the US average (13.7). This map shows clusters of municipalities with very high suicide rates in the north-east part of the country (Sonora and Chihuahua states); the north of Yucatan;  the north-east (states of Nuevo Leon and Tamaulipas) and the state of Oaxaca. In the former case, a lot of Oaxaca's municipalities have a very small population, which inflates the effect of an addional case of suicides making the rates look very high. The average rate in the state is not very high. Chihuahua and Yucatan, on the other hand, are among the states with the larger rates of suicides. Explaining the causes of these high rates are not in the scope of this work, but a further exploration of the sociodemographic characteristics of the suicide population is presented later.
+
+
+```{r municipal map, echo=FALSE,message=FALSE, echo=TRUE, results='hide',warning=FALSE}
+library('rgdal')
+library("sf")
+library("mxmaps")
+library("viridis")
+library("scales")
+library(reshape2)
+k<-100000
+
+### MUNICIPAL SUICIDES ####
+library(sf)
+mun_shape <- st_read(here::here("Data/muni_2012gw/Muni_2012gw.shp"))
+mun_shape<-st_simplify(mun_shape)
+suicides_municipal_yearly <-
+  filter(death_certificates, non_natural_causes== 'Suicide') %>% 
+  group_by(state_mun_OCUR, ANIO_OCUR) %>% 
+  tally()
+
+suicides_municipal_yearly<- merge(x = suicides_municipal_yearly, y = irs, by.x = 'state_mun_OCUR', by.y ='municipal_id' )
+
+suicides_municipal_yearly<-  select (suicides_municipal_yearly,c(state_mun_OCUR, "ANIO_OCUR", "n", "cve_edo","state_name",  "municipal_name", "pop2000", "pop2005", "pop2010", "pop2015"))
+
+
+suicides_municipal_yearly<- suicides_municipal_yearly %>% 
+  mutate(rate= case_when(ANIO_OCUR<=2002 ~ n/(as.numeric(pop2000))*k,    ANIO_OCUR>2002 & ANIO_OCUR<=2008 ~ (n/as.numeric(pop2005))*k, 
+                                          ANIO_OCUR>2008 & ANIO_OCUR<= 2013 ~ (n/as.numeric(pop2010))*k,
+                                          ANIO_OCUR>2013 ~ (n/as.numeric(pop2015))*k), na.rm = TRUE)
+
+municipal_average_suicide<-suicides_municipal_yearly%>%
+  group_by(state_mun_OCUR, municipal_name, cve_edo, state_name) %>%
+  summarise_at(c("rate"), funs(mean(., na.rm=TRUE)))
+
+mun_shape<- mun_shape %>% 
+    mutate(state_mun_OCUR= paste(CVE_ENT, CVE_MUN, sep=""))
+ 
+mun_shape = mun_shape %>% 
+    left_join(municipal_average_suicide, by = "state_mun_OCUR")  
+
+mun_shape<- mun_shape %>%
+  mutate(rate_cut = cut(mun_shape$rate, c(0,5.2,10.5,13.7,356)))
+
+colnames(mun_shape)[colnames(mun_shape) == 'state_mun_OCUR'] <- 'region'
+#colnames(mun_shape)[colnames(mun_shape) == 'rate_cut'] <- 'value'
+
+mun_shape<- mun_shape %>% mutate(
+  value_label=case_when(rate_cut=="(0,5.2]" ~ "< National Average",
+                 rate_cut=="(5.2,10.5]" ~ "National Average - World Average",
+                 rate_cut=="(10.5,13.7]" ~ "World Average - US Average",
+                 rate_cut=="(13.7,356]" ~ "> US average"))
+colnames(mun_shape)[colnames(mun_shape) == 'value'] <- 'interval'
+mun_shape$value_label <- factor(mun_shape$value_label, levels = c( "< National Average","National Average - World Average", "World Average - US Average", "> US average"))
+colnames(mun_shape)[colnames(mun_shape) == 'value_label'] <- 'value'
+
+
+municipal_suicides_plot<-mxmunicipio_choropleth(mun_shape)+ scale_fill_manual("Rate/100K", values=c('#f5e5cf','#e7be88', '#dea459', '#d07e12'), na.value=ami_cols("dark grey"))  +
+  scale_alpha_manual(values=c(0.8,0.8,0.8,0.8)) +
+  labs(title = "Map 1. 20-years Annual Average Municipal \nSuicide Rate (1998-2017)",
+       legend = "Rate (#/100K)", 
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog (https://www.diegovalle.net) ") +
+  annotate(geom = "text", x = -96, y = 31, label = "Mexico's Average: 5.2", size = 3.5, hjust = 0, family="Karla") + annotate(geom = "text", x = -96, y = 30, label = "World Average: 10.5", size = 3.5, hjust = 0, family="Karla") + annotate(geom = "text", x = -96, y = 29, label = "US Average: 13.7", size = 3.5, hjust = 0, family="Karla") +
+  theme_amiplots
+municipal_suicides_plot[["layers"]][[1]][["aes_params"]][["colour"]] <- "transparent"
+municipal_suicides_plot
+
+```
+
+Maps 2 and 3 show the state average age of suicide cases by sex. The breaks are 25% percentiles. Noticeable, the younger suicide cases occur at the center ( "GTO", "QRO", "MEX", "TLAX", and "PUE") and south east part of the country ("QROO and CHPS"). However, with the exception of Quintana Roo, none of these states presents the larger rate of suicides in the country. This in turn suggests that the states with the larger rates of suicides are not the ones that concentrate younger male suicide cases. Rather, the states with the largest rates of suicides (like "SON" and "YUC") show an older profile of the suicide cases.
+```{r map states male, echo=TRUE, message=FALSE, warning=FALSE,  results='hide'}
+library('rgdal')
+library("sf")
+library("mxmaps")
+library("viridis")
+library("scales")
+library("reshape2")
+k<-100000
+
+## Age States Suicides ####
+state_shape<- st_read(here::here("data/state_boundaries/dest_2015gw/dest_2015gw.shp"))
+state_shape<-st_simplify(state_shape)
+
+suicides_state_yearly <-
+  filter(death_certificates, non_natural_causes== 'Suicide') %>% 
+  group_by(state_ocur, ANIO_OCUR) %>% 
+  tally()
+
+state_population<- irs %>%
+  group_by(cve_edo) %>%
+  summarize(tot00 = sum(pop2000, na.rm = TRUE),
+            tot05 = sum(pop2005, na.rm = TRUE),
+            tot10=sum(pop2010, na.rm=TRUE),
+            tot15=sum(pop2015, na.rm=TRUE))
+
+## Have to do this because there is no single ID (as compared to municipal data)
+suicides_state_yearly<-suicides_state_yearly %>% 
+  mutate(year_merge = case_when(ANIO_OCUR<2000 ~ "tot00",
+                                           ANIO_OCUR>=2000 & ANIO_OCUR<=2004 ~ "tot00",
+                                           ANIO_OCUR>=2005 & ANIO_OCUR<= 2009 ~ "tot05",
+                                           ANIO_OCUR>=2010 & ANIO_OCUR<= 2015 ~ "tot10",
+                                           ANIO_OCUR>2015 ~ "tot15"))
+state_population<-melt(state_population, id=c("cve_edo"))
+
+##THIS IS ONLY FOR AGE PLOTS####
+suicides_state_age_by_sex<-
+  filter(death_certificates, non_natural_causes== 'Suicide' & (sex=="Male" | sex=="Female")) %>% 
+  group_by(state_ocur, sex) %>% 
+  dplyr::summarize(Mean = mean(age_years, na.rm=TRUE))
+
+male_state_suicides<-dplyr:: left_join(state_shape, subset(suicides_state_age_by_sex,sex=="Male"),  by= c('CVE_ENT'="state_ocur"))
+
+female_state_suicides<-dplyr:: left_join(state_shape, subset(suicides_state_age_by_sex,sex=="Female"), by= c( 'CVE_ENT'="state_ocur"))
+
+male_state_suicides$value<-cut(male_state_suicides$Mean, 4, labels=c("22 to 27", "28 to 32" , "32 to 36", "37 to 41"))
+colnames(male_state_suicides)[colnames(male_state_suicides)=="CVE_ENT"] <- "region"
+
+female_state_suicides$value<-cut(female_state_suicides$Mean, 4, labels=c("27 to 29", "30 to 31" , "32 to 33", "33 to 35"))
+colnames(female_state_suicides)[colnames(female_state_suicides)=="CVE_ENT"] <- "region"
+
+male_state_suicide_plot<- mxhexbin_choropleth(male_state_suicides, num_colors = 4) +
+ labs(title = " Map 2. Average Age of Male Suicide Cases 1998-2017",
+       subtitle = "",
+      legend = "Age",
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_manual("Age Range", values=c('#2171b5',
+'#4d8dc3',
+'#90b8da',
+'#d2e2f0'
+))  +
+theme_amiplots
+
+male_state_suicide_plot
+
+
+```
+
+In the case of females, the states with the younger cases are similar as in the male case, except for the case of Queretaro ("QRO") which is not among the top 25%, and instead the state of Guerrero ("GRO") and Chiapas ("CHPS") appear in this category. Map 3 shows this infomormation. These two maps suggest that the states at the center and south east of the country concentrate most of the cases of young suicides, but not necessarily the higher rates.
+
+```{r map states female, echo=TRUE, message=FALSE, warning=FALSE,  results='hide'}
+library('rgdal')
+library("sf")
+library("mxmaps")
+library("viridis")
+library("scales")
+library('reshape2')
+k<-100000
+
+female_state_suicide_plot<- mxhexbin_choropleth(female_state_suicides, num_colors = 4) +
+ labs(title = "Map 3. Average Age of Female Suicide Cases 1998-2017",
+       subtitle = "",
+      legend = "Age",
+       caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_manual("Age Range", values=c('#6da786',
+'#94c7aa',
+'#bcdcca',
+'#e4f1e9'
+)) +
+theme_amiplots 
+female_state_suicide_plot
+```
+
+```{r map rate by state, include=FALSE, message=FALSE, warning=FALSE}
+
+## This is the average rate per state, excluded ####
+suicides_state_yearly <- dplyr:: left_join(suicides_state_yearly, state_population,by=c("state_ocur"="cve_edo", "year_merge"="variable"))
+#rm(death_certificates)
+suicides_state_yearly<-suicides_state_yearly %>% 
+  mutate(rate = n/value*k)
+state_average_suicide<-suicides_state_yearly%>%
+  group_by(state_ocur) %>%
+  summarise_at(vars(rate), funs(mean(., na.rm=TRUE)))
+state_average_suicide<-state_average_suicide[which(state_average_suicide$state_ocur!= 99 & state_average_suicide$state_ocur!=33 & state_average_suicide$state_ocur!=35),]
+```
+
+## 2.4 Suicides and Occupation
+
+Chart 3 shows the distribution of suicide cases by occupation and age for the population between 25 and 50 years old. A special interest to show this chart is the analysis of how unemployment may be associated with suicide cases. 
+The largest share of occupations in the suicide population across all ages are: 1) unemployed people, and those who are looking for a job (orange area on top); 2) Surveillance and personal services jobs; and 3) Workers in the manufacturing and transport industry. People in the sales business show an increasing share as people get older. Also, it could be fairly said that suicides are prevalent among blue-collar worker population.
+
+```{r suicides by occupation and age, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE}
+suicides_occupation<- death_certificates %>% select(non_natural_causes,sex,school_category, occupation, age_years)
+
+suicides_occupation_male <- filter(suicides_occupation, non_natural_causes=="Suicide" & age_years>=25 & age_years<=50)
+
+suicides_occupation_male = suicides_occupation_male %>% 
+                              mutate(occupation =                                        if_else(occupation=='55',"Industrial/Manufacturing/Transport worker", occupation))
+suicides_occupation_male = suicides_occupation_male %>% 
+                              mutate(occupation =                                        if_else(occupation=="Looking for Job" | occupation=='Not Working',"Not Working/Looking for a job", occupation))
+
+suicides_occupation_male = suicides_occupation_male %>% 
+                              mutate(occupation =                                        if_else(occupation=="Informal seller (Vend. Amb)"| occupation=="Domestic/House Services","Informal Worker", occupation))
+
+normalized_suic_age_male<- suicides_occupation_male %>% 
+  group_by(age_years, occupation) %>% 
+  tally() %>% 
+group_by(age_years) %>% mutate(percent = n/sum(n)*100)
+
+normalized_suic_age_male$ordered_vars <- factor(normalized_suic_age_male$occupation, levels=c("NA", "Not Working/Looking for a job", "Artisan/Auxiliary Workers", "Primary Sector Worker", "Surveillance-Personal Services", "Informal Worker", "Industrial/Manufacturing/Transport worker", "Admin Work", "Salesman", "White Collar", "Professional-Technical worker", "Personal Services at businesses" ))
+
+size_parameter<-2.5
+occupation_plot<-ggplot(normalized_suic_age_male, aes(x=age_years, y=percent, fill=ordered_vars)) +  
+  geom_area(size=.05, alpha=.7, color='black' , show.legend = FALSE) +
+scale_fill_manual(values=ami_pal("multi")(12)) +
+    geom_text(aes(x=47, label="No information", y=95), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Not working/Looking for a Job", y=78), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Artisan/Auxiliary Workers", y=67), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Primary Sector", y=55), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Surveillance/Personal Services", y=45), colour="white", size=size_parameter) +
+    geom_text(aes(x=28, label="Peddlers/Domestic Work", y=40), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Industrial/Manufacturing/\nTransport", y=28), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Administrative", y=17), colour="white", size=size_parameter) +
+    geom_text(aes(x=45, label="Sales", y=10), colour="white", size=size_parameter) +
+    geom_text(aes(x=48, label="White Collar", y=6), colour="white", size=size_parameter) +
+    geom_text(aes(x=43, label="Professional/Technical", y=3.5), colour="white", size=size_parameter) +
+    geom_text(aes(x=28, label="Personal Services", y=1.75), colour="white", size=size_parameter) +
+  labs(title = "4. Suicide Cases by Ocupation and Age",
+       subtitle="Ages 25-50 years old",
+       caption = "Source: National Institute of Statistics and Geography (INEGI)", 
+       x = "Age", y = "%") +
+       theme(plot.title = element_text(lineheight=.8, face="bold")) +
+theme_ami
+occupation_plot
+```
+
+## 2.4 Time Patterns 
+
+The heatmaps below analyze the temporal pattern of suicides occurence. Time and day are an important characteristic of the suicides phenomenon, and an intervention aimed to prevent suicides should consider when suicides are more likely to occur. Chart 4 shows the time patterns for male and female suicide cases. Whereas for males the likelihood of suicide occurence is greater during the weekends (the horizontal blocks for Sunday and Monday), and in any day around midnight (the vertical line on zero), these patterns are not as clear in the female cases. Rather, the distribution of cases across days and times is more homogenous.[^1]
+
+[^1]: Note that the scales are different
+
+```{r suicide heatmap, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
+## Suicide time heatmap####
+library(lubridate)
+library(ggpubr)
+library(cowplot)
+library(egg)
+
+daily_suicides<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
+daily_suicides <-  daily_suicides  %>%
+  mutate(day_of_suicide=weekdays(as.Date(date_death)))
+
+daily_suicides$numeric_time<- as.POSIXct(daily_suicides$time_death, format = "%H:%M:%S")
+daily_suicides$hour_suicide <- hour(daily_suicides$numeric_time)
+
+test_suicides <-
+  daily_suicides %>% 
+  group_by(hour_suicide, day_of_suicide, sex) %>% 
+  tally()
+
+test_suicides$day_of_suicide <- factor(test_suicides$day_of_suicide, levels = c( "Friday","Thursday", "Wednesday", "Tuesday",  "Monday",  "Sunday", "Saturday" ))
+#c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+test_suicides <- test_suicides %>%
+              mutate(hour_factor=as.factor(hour_suicide))
+test_suicides$hour_factor <- factor(test_suicides$hour_suicide, levels = c(  "12","13", "14","15", "16","17",'18','19','20','21','22','23','0','1','2','3','4','5','6','7','8','9','10','11'))
+#c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+## Male Plot ####
+heat_map_suicide_male <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & !is.na(hour_suicide) & sex=='Male'), aes(hour_factor, day_of_suicide,  fill=n)) +  
+ geom_tile(aes(fill = n), color="white") +
+      scale_fill_gradient(low = "white", high = ami_cols('blue')) + #scale_x_discrete(position = "top")+
+    scale_x_discrete(position = "top", breaks=test_suicides$hour_factor, expand=c(0,0)) +
+   scale_y_discrete(breaks=test_suicides$day_of_suicide, expand=c(0,0)) +
+  
+  ggtitle("5. Time Patterns in Suicides")+
+  labs( subtitle = "Suicides are most likely to occur around midnight all weekdays, and during weekends.\nThis pattern is more pronounced in males",
+      caption="" ,x = "Time", y="") +
+  labs(fill = "# Male Suicides") +
+  theme_ami +
+  theme(axis.text.x=element_text(size=6.5))
+  
+## Female Plot ####
+
+heat_map_suicide_female <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) & !is.na(hour_suicide) & sex=="Female"), aes(hour_factor, day_of_suicide,  fill=n)) +  
+ geom_tile(aes(fill = n), color="white") +
+    scale_fill_gradient2 (low = "white", high = ami_cols('green2'))  +
+    scale_x_discrete(position = "top", breaks=test_suicides$hour_factor,expand=c(0,0)) +
+   scale_y_discrete(breaks=test_suicides$day_of_suicide, expand=c(0,0)) +
+  
+  labs( #subtitle = "Average rate of growth 1999-2017",
+      caption="Source: INEGI and CONAPO" ,x = "", y="") +
+  labs(fill = "# Female Suicides") +
+   theme_ami +
+  theme(axis.text.x=element_text(size=6.5))
+## Both Plots ####
+heatmaps<-egg::ggarrange(heat_map_suicide_male, heat_map_suicide_female, ncol=1)
+```
+
+
+## 2.5 Chihuahua and Yucatan States Comparison
+
+To analyze in specific some of the characteristics of the states with the larger suicides rates,  treemaps were created to show simmilarities and contrasts between the national characteristics of suicide population, and those of Yucatan and Chihuahua states. 
+
+Regarding age and sex structure of suicide population (Figure 6A), both Chihuahua and Yucatan show a simmilar structure as the national one. However, in Chihuahua we observe more suicides in male older cohorts as compared to the country and Yucatan.
+Figure 6B shows the breakdown by occupation. The first  thing to note is the size of unemployed people share, which is the largest. Interestingly, Chihuahua, a state which economy relies heavily on the manufacturing industry (and the share of the employed population in this sector is among the top in the country), shows a smaller share of this category as compared to the national level. In the state of Yucatan, the share of administrative workers is larger than at the national level and Chihuahua. The same situation occurs for the Artisan/Auxiliary workers category in the state of Chihuahua. 
+
+We also analyze the schooling degree of suicide population as a proxy of socioeconomic status. To avoid a bias of young suicide population that did not complete highschool or college, we subset the data to population older than 25 years old. When we take a look at the school levels of suicide population, we observe at the national level that a majority of these population has at most complete elementary school. The share of suicide population in Chihuahua who completed high-school and elementary school is much larger than the national level. Finally, we also observe that suicide population in Chihuahua has a largest share of married and cohabiting-unmarried population than the rest of the country and Yucatan and, in general, that Chihuahua's suicide victims are more different from the national profile than Yucatan's are.
+
+```{r yucatan and chihuahua, warning=FALSE, message=FALSE, error=FALSE, results='hide' }
+
+library(treemapify)
+library(treemap)
+#age_years<15 ~ 'Less than 15',
+suicides_yuc <-
+  filter(death_certificates, non_natural_causes== 'Suicide' &age_years>=15)
+suicides_yuc <-suicides_yuc %>%  mutate(age_cohort = case_when(
+                                           age_years>=15 & age_years<35 ~ '15 to 35',
+                                           age_years>=35 & age_years<50 ~ '35 to 50',
+                                           age_years>=50 & age_years<70 ~ '50 to 70',
+                                           age_years>=70 ~ 'More than 70'))
+
+suicides_yuc = suicides_yuc %>% 
+                              mutate(occupation =                                        if_else(occupation=='55',"Industrial/Manufacturing/Transport worker", occupation))
+suicides_yuc= suicides_yuc %>% 
+                              mutate(occupation =                                        if_else(occupation=="Looking for Job" | occupation=='Not Working',"Not Working/Looking for a job", occupation))
+
+suicides_yuc = suicides_yuc%>% 
+                              mutate(marital_status =                                        if_else(marital_status=="free_union","Cohabiting unmarried", marital_status))
+
+suicides_yuc = suicides_yuc %>% 
+                              mutate(marital_status =                                        if_else(marital_status=="divorced" | marital_status=="separated","Divorced/Separated", marital_status))
+
+
+suicides_yuc= suicides_yuc %>% 
+                              mutate(state =                                        if_else(ENT_OCURR=="31","Yucatan", if_else(ENT_OCURR=="08","Chihuahua", "National")))
+
+cohort_suicides_yuc<-
+  suicides_yuc %>% 
+  group_by(age_cohort, sex, state) %>% 
+  tally()
+occup_suicides_yuc<-
+  subset(suicides_yuc, age_years>25 & age_years<65) %>% 
+  group_by(occupation, state) %>% 
+  tally()
+educ_suicides_yuc<-
+  subset(suicides_yuc, age_years>25) %>% 
+  group_by(school_category, state) %>% 
+  tally()
+marital_suicides_yuc<-
+  subset(suicides_yuc, age_years>18) %>% 
+  group_by(marital_status, state) %>% 
+  tally()
+
+## Plots ####
+palette_cohort_treemap<- c("#4C64E8", "#6190A6", "#93A15C", "#E19509")
+treemap_cohorts<-ggplot(subset(cohort_suicides_yuc, sex!="Not specified" ), aes(area = n, subgroup=sex, fill=age_cohort, label = age_cohort)) +
+  geom_treemap( alpha=0.8, palette=ami_pal("cool")(4)) + 
+  geom_treemap_text( colour = "white", place = "centre",
+                    grow = TRUE, family="Karla", min.size = 0, palette=ami_pal("cool")(4)) +
+  geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, colour =
+                             ami_cols("dark grey"), min.size = 0, family="Karla") + 
+  
+  facet_wrap( ~state) +
+    theme(legend.position="bottom") + guides(fill=FALSE) +
+  labs(title = "6A. Suicides Cases in Yucatan and Chihuahua by Sex and Age",
+        caption = "Source: INEGI") +
+    scale_fill_manual(values=palette_cohort_treemap, aesthetics = "fill") +
+  theme_ami 
+treemap_cohorts
+
+palette_occup_treemap<- c("#4C64E8", "#516FD7", "#577AC7", "#5C85B7", "#6190A6", "#679B96", "#6DA786", "#80A471", "#93A15C", "#A79E47","#BA9B32", "#CD981D", "#E19509")
+treemap_occupation<-ggplot(subset(occup_suicides_yuc, occupation!="NA"), aes(area = n, fill=occupation, label = occupation)) +
+  geom_treemap() + 
+  geom_treemap_text( colour = "white", place = "centre",
+                    grow = TRUE, min.size=0)  +
+  facet_wrap( ~state) + guides(fill=FALSE) +
+    scale_fill_manual(values=palette_occup_treemap, aesthetics = "fill")
+  labs(title = "6B. Suicides Cases in Yucatan and Chihuahua by Occupation",
+       subtitle="Population between 25 and 65 years old",
+       caption = "Source: INEGI") +
+theme_amiplots
+
+treemap_occupation
+
+palette_school_treemap<-c("#4C64E8", "#597EC0", "#669999", "#84A36C", "#B29C3A", "#E19509")
+treemap_school<-ggplot(subset(educ_suicides_yuc, school_category!="NA"), aes(area = n, fill=school_category, label = school_category)) +
+  geom_treemap() + 
+  geom_treemap_text( colour = "white", place = "centre",
+                    grow = TRUE, min.size = 0) + facet_wrap( ~state) +
+    theme(legend.position="bottom") + guides(fill=FALSE)+
+    scale_fill_manual(values=palette_school_treemap, aesthetics = "fill")+
+  labs(title = "6C. Suicides Cases in Yucatan and Chihuahua by School Category",
+       subtitle="Population older than 25",
+       caption = "Source: INEGI") +
+theme_amiplots
+
+treemap_school
+
+palette_marital_treemap<-c("#4C64E8", "#5C85B7", "#6DA786", "#A79E47", "#E19509")
+treemap_marital<-ggplot(subset(marital_suicides_yuc, marital_status!="NA"), aes(area = n, fill=marital_status, label = marital_status)) +
+  geom_treemap() + 
+  geom_treemap_text( colour = "white", place = "centre",
+                    grow = TRUE, family="Karla", min.size = 0) + facet_wrap( ~state) +
+     guides(fill=FALSE)+
+   scale_fill_manual(values=palette_marital_treemap, aesthetics = "fill")+
+  labs(title = "6D. Suicides Cases in Yucatan and Chihuahua by Marital Status",
+       subtitle="Population older than 18",
+       caption = "Source: INEGI") +
+
+theme_amiplots
+
+treemap_marital
+```
+
+
