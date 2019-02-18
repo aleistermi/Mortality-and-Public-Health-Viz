@@ -216,14 +216,16 @@ TOTAL_monthly_death_national<-TOTAL_monthly_death_national %>%
 
 In a recent [article](https://econ.st/2WuSTSN), the British magazine "The Economist" notes that there is a global decline trend in suicides, mostly driven by China, India and Russia. The article also underlines that America is the big exception: this century, suicides' rate in America has grown 18%, and if 20 years ago China's rate doubled America's, this relationship has been reversed.
 A similar story can be told about suicides in Mexico. 
+
 Compared to the attention that other mortality characteristics receive, this phenomenon has been absent from the public discussion and, to our knowledge, there are no comprehensive studies that account for its characteristics, not to mention its causes. This work focuses on analyzing suicides in Mexico.[^*]
 
 [^*]: I thank Alex Engler, Cory Rand and Sinclair Target for their insightful comments to improve this work. The contents, design and mistakes are my own.
 
 
-Figure 1 shows the trend in suicides in Mexico (green line). To show how the increase in suicides compares to its level in January 1998 and to the growth of other mortality causes, all death rates were set equal to a value of 100 in January 1998. Then the value of this index reflects how much the value of a mortality rate changed as compared to the value of 100 in 1998, and how this growth compares to other mortality growth along the period 1998-2017.
+Figure 1 shows the trend in suicides in Mexico since 1998 (green line). To show how the increase in suicides compares to its level in January 1998 and to the growth of other mortality causes, all death rates were set equal to a value of 100 in January 1998. Then the value of this index reflects how much the value of a mortality rate changed as compared to the value of 100 in 1998, and how this growth compares to other mortality growth along the period 1998-2017.
 
-In the last 12 years, scholars and policy makers have paid special attention to the increase in mortality rates in Mexico. The dramatic increase in homicides, which is arguably the most important policy challenge for the Mexican authorities, has received special attention. However, as we may find an exogeous cause that triggered the spiral of violence in the country (namely, the so called "war on drugs"), we don't find an exact date or cause that points the beginning in the upward trend in suicides. Nonetheless, we observe a sustained growth since 1998: the ascendant trend in suicides started in the late 1990's and has keep growing since. This growth has been only surpassed by the increase in the homicides (line in blue), which rate has doubled since 1998, whereas in the case of suicides, the growth is about 50%.
+
+The dramatic increase in homicides, which is arguably the most important policy challenge faced by Mexican authorities, has received special attention in the last 12 years. However, as we may find an exogeous cause that triggered the spiral of violence in the country (namely, the so called "war on drugs"), we don't find an exact date or cause that points the beginning of the sucides' upward trend. Nonetheless, we observe a sustained growth since 1998: the ascendant trend in suicides started in the late 1990's and has kept growing since. This growth has been only recently surpassed by the increase in  homicides (blue line), which rate has doubled since 1998, whereas in the case of suicides, the growth is about 50%.
 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
@@ -322,7 +324,7 @@ p2 = ggplot(NULL, aes(x = 1, y = 1)) + ylim(0.8, 1.2) +
 ## 2.1 Trends by Age Cohort
 
 
-Different analysis of suicides have shown that there are important variations across population cohorts. In the case of Mexico, these differences are remarkable. The suicides rate shows the largest increase among the young: for the 15-35 years old cohort, rate increased from around 6 cases per 100k inhabitants, to a little bit more than 8 in 2017; an increase of about 30%. This growth is also remarkable among the 35-50 cohort, which rose from around 5 to 7 cases per 100k. Among the 50-70 cohort we observe an relatively stable average (though it may seem to exist a seasonality pattern). Finally, in the elder cohort we see a continous drop in suicides (from around 7 to around 5 cases per 100k).
+Different analysis of suicides point out that there are important variations across population cohorts. In the case of Mexico, these differences are remarkable. The suicides rate shows the largest increase among the young population: for the 15-35 years old cohort, rate increased from around 6 cases per 100k inhabitants, to a little bit more than 8 in 2017; an increase of about 30%. This growth is also remarkable among the 35-50 cohort, which rose from around 5 to 7 cases per 100k. Among the 50-70 cohort we observe a relatively stable average (though it may seem to exist a seasonality pattern). Finally, in the elder cohort we see a sustained drop in suicides (from around 7 to around 5 cases per 100k).
 ```{r cohort trends data, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE, results='hide'}
 ## DATA FOR COHORTS ####
 suicides_by_cohort<-death_certificates[which(death_certificates$non_natural_causes=="Suicide"),] 
@@ -389,9 +391,9 @@ cohortsplot
 
 ## 2.2 Male and Female Suicides
 
-As relevant as the variation among cohorts,  differences between sex are noticeable. From the total cases of suicides since 1998, 82% correspond to male suicides, and 18% to female. The violin plot in Figure 2 analyzes the distribution of ages across males and females who commited suicide. The dotted lines correspond to the percentiles 25, 50, and 75, and the number within the chart corresponds to the average age for each group. 
+As relevant as the variation among cohorts,  differences between sex are noticeable. From the total cases of suicides since 1998, 82% correspond to male suicides, and only 18% to female. The violin plot in Figure 3 analyzes the distribution of ages across males and females who commited suicide. The dotted lines correspond to the percentiles 25th, 50th, and 75th, and the number within the chart corresponds to the average age for each group. 
 
-There are three important things to notice form the violinplot. First, women who committed suicide are on average younger than men by an approximate difference of 6 years (in 2017, 31.6 vs 36.1 years old). For all the period 1998-2017, the mean age for males is around 36.1 years old, and for females is 30.5. Second, the average age of suicide has slightly increased in the last 20 years for both men and women. This increase in the average age seems to be concentrated in the age cohort between 25 and 50 years old. Third, the distribution of male age has become more evenly distributed, in the sense that the shape of the violin plot has become more cylindrical or thin; that is, there are more cases evenly distributed among the young male population (less than 50 years old). On the other hand, the distribution of female cases keeps a more clear "pear" shape.
+There are three important things to notice from the violinplot. First, women who committed suicide are on average younger than men by an approximate difference of 6 years (in 2017, 31.6 vs 36.1 years old). For all the period 1998-2017, the mean age for males is 36.1 years old, and females' is 30.5. Second, the average age of suicide has slightly increased in the last 20 years for both men and women. This increase seems to be concentrated in the age cohort between 25 and 50 years old. Third, the distribution of male age has become more evenly distributed, in the sense that the shape of the violin plot has become more cylindrical or thin; that is, there are more cases evenly distributed among the young male population (less than 50 years old). On the other hand, the distribution of female cases keeps a more clear "pear" shape.
 
 ```{r violinsplot data, echo=TRUE, warning=FALSE, message=FALSE}
 library(ggridges)
@@ -446,7 +448,7 @@ geom_text(
   mapping = aes(y = age_years, x = Sex,  label = label), size=3, family="Karla")+
   ggtitle("3. Age Distribution of Suicide Cases by Sex in 1998, 2008 and 2017")+
   labs( subtitle = "Females commit suicide younger. Among males, suicides are becoming more evenly distributed in ages 25-40's",
-      caption="Source: INEGI" ,x = "Sex", y = "Years") +
+      caption="Source: INEGI \n Dotted lines correspond to the 25th, 50th and 75th percentiles" ,x = "Sex", y = "Years") +
   theme_ami
 
 violines
@@ -454,7 +456,9 @@ violines
 
 ## 2.3 Spatial Distribution of Suicides
 
-Map 1 shows the rate of suicides at the municipal level. The break values used to color the map are  the national Mexican average (5.2 cases per 100 thousand inhabitants); the world average (10.5), and the US average (13.7). This map shows clusters of municipalities with very high suicide rates in the north-east part of the country (Sonora and Chihuahua states); the north of Yucatan;  the north-east (states of Nuevo Leon and Tamaulipas) and the state of Oaxaca. In the former case, a lot of Oaxaca's municipalities have a very small population, which inflates the effect of an addional case of suicides making the rates look very high. The average rate in the state is not very high. Chihuahua and Yucatan, on the other hand, are among the states with the larger rates of suicides. Explaining the causes of these high rates are not in the scope of this work, but a further exploration of the sociodemographic characteristics of the suicide population is presented later.
+Map 1 shows the rate of suicides at the municipal level. The break values used to color the map are  the national Mexican average (5.2 cases per 100 thousand inhabitants); the world average (10.5), and the US average (13.7). 
+
+This map shows clusters of municipalities with very high suicide rates in the north-east part of the country (Sonora and Chihuahua states); the north of Yucatan;  the north-east (states of Nuevo Leon and Tamaulipas) and the state of Oaxaca. In the former case, a lot of Oaxaca's municipalities have a very small population, which inflates the effect of an addional case of suicides, making the rates to look very high. In fact, Oaxaca state is not among the top states in terms of suicide rates. Chihuahua and Yucatan, on the other hand, are among the states with the larger rates of suicides. Explaining the causes of high rates are not the scope of this work, but a further exploration of the sociodemographic characteristics of the suicide population is presented later.
 
 
 ```{r municipal map, echo=FALSE,message=FALSE, echo=TRUE, results='hide',warning=FALSE}
@@ -523,7 +527,7 @@ municipal_suicides_plot
 
 ```
 
-Maps 2 and 3 show the state average age of suicide cases by sex. The breaks are 25% percentiles. Noticeable, the younger suicide cases occur at the center ( "GTO", "QRO", "MEX", "TLAX", and "PUE") and south east part of the country ("QROO and CHPS"). However, with the exception of Quintana Roo, none of these states presents the larger rate of suicides in the country. This in turn suggests that the states with the larger rates of suicides are not the ones that concentrate younger male suicide cases. Rather, the states with the largest rates of suicides (like "SON" and "YUC") show an older profile of the suicide cases.
+Maps 2 and 3 show the State's average age of suicide cases by sex. The breaks are 25% percentiles. Noticeable, the younger suicide cases occur at the center ( "GTO", "QRO", "MEX", "TLAX", and "PUE") and south east part of the country ("QROO and CHPS"). However, with the exception of Quintana Roo, none of these states presents the larger rate of suicides in the country. 
 ```{r map states male, echo=TRUE, message=FALSE, warning=FALSE,  results='hide'}
 library('rgdal')
 library("sf")
@@ -576,7 +580,7 @@ colnames(female_state_suicides)[colnames(female_state_suicides)=="CVE_ENT"] <- "
 
 male_state_suicide_plot<- mxhexbin_choropleth(male_state_suicides, num_colors = 4) +
  labs(title = " Map 2. Average Age of Male Suicide Cases 1998-2017",
-       subtitle = "",
+       subtitle = "Younger suicide cases concentrate in the center and southeast",
       legend = "Age",
        caption = "Source: INEGI, CONAPO and Diego Valle's Blog for the hexaplot  (https://www.diegovalle.net)") + scale_fill_manual("Age Range", values=c('#2171b5',
 '#4d8dc3',
@@ -590,7 +594,9 @@ male_state_suicide_plot
 
 ```
 
-In the case of females, the states with the younger cases are similar as in the male case, except for the case of Queretaro ("QRO") which is not among the top 25%, and instead the state of Guerrero ("GRO") and Chiapas ("CHPS") appear in this category. Map 3 shows this infomormation. These two maps suggest that the states at the center and south east of the country concentrate most of the cases of young suicides, but not necessarily the higher rates.
+In the case of female suicides, the states with the younger cases are similar as in the male case, except for Queretaro ("QRO") which is not among the top 25%, and instead the state of Guerrero ("GRO") and Chiapas ("CHPS") appear in this category. Map 3 shows this information. 
+
+These two maps suggest that the states at the center and south east of the country concentrate most of the cases of young suicides, but not necessarily the higher rates (with the exception of Quintana Roo).
 
 ```{r map states female, echo=TRUE, message=FALSE, warning=FALSE,  results='hide'}
 library('rgdal')
@@ -629,8 +635,9 @@ state_average_suicide<-state_average_suicide[which(state_average_suicide$state_o
 
 ## 2.4 Suicides and Occupation
 
-Chart 3 shows the distribution of suicide cases by occupation and age for the population between 25 and 50 years old. A special interest to show this chart is the analysis of how unemployment may be associated with suicide cases. 
-The largest share of occupations in the suicide population across all ages are: 1) unemployed people, and those who are looking for a job (orange area on top); 2) Surveillance and personal services jobs; and 3) Workers in the manufacturing and transport industry. People in the sales business show an increasing share as people get older. Also, it could be fairly said that suicides are prevalent among blue-collar worker population.
+Chart 4 shows the distribution of suicide cases by occupation and age for the population between 25 and 50 years old. A special interest to show this chart is the analysis of how unemployment may be associated with suicide cases. 
+
+The largest share of occupations in the suicide population across all ages are: 1) unemployed people, and those who are looking for a job (orange area on top); 2) Surveillance and personal services jobs; and 3) Workers in the manufacturing and transport industry. People in the sales business show an increasing share as people get older. Also, it could be fairly said that suicides are prevalent among the blue-collar worker population.
 
 ```{r suicides by occupation and age, echo=TRUE, warning=FALSE, message=FALSE, error=FALSE}
 suicides_occupation<- death_certificates %>% select(non_natural_causes,sex,school_category, occupation, age_years)
@@ -677,9 +684,11 @@ theme_ami
 occupation_plot
 ```
 
-## 2.4 Time Patterns 
+## 2.5 Time Patterns 
 
-The heatmaps below analyze the temporal pattern of suicides occurence. Time and day are an important characteristic of the suicides phenomenon, and an intervention aimed to prevent suicides should consider when suicides are more likely to occur. Chart 4 shows the time patterns for male and female suicide cases. Whereas for males the likelihood of suicide occurence is greater during the weekends (the horizontal blocks for Sunday and Monday), and in any day around midnight (the vertical line on zero), these patterns are not as clear in the female cases. Rather, the distribution of cases across days and times is more homogenous.[^1]
+The heatmaps below analyze the temporal pattern of suicides occurence. Time and day are an important characteristic of the suicides phenomenon, and an intervention aimed to prevent suicides should consider when suicides are more likely to occur. 
+
+Chart 5 shows the time patterns for male and female suicide cases. Whereas for males the likelihood of suicide occurence is greater during the weekends (the horizontal blocks for Sunday and Monday), and in any day around midnight (the vertical line on zero), these patterns are still present in the female case, but with a more homogenous distribution during the weekdays. [^1]
 
 [^1]: Note that the scales are different
 
@@ -718,7 +727,7 @@ heat_map_suicide_male <- ggplot(test_suicides %>% filter(!is.na(day_of_suicide) 
    scale_y_discrete(breaks=test_suicides$day_of_suicide, expand=c(0,0)) +
   
   ggtitle("5. Time Patterns in Suicides")+
-  labs( subtitle = "Suicides are most likely to occur around midnight all weekdays, and during weekends.\nThis pattern is more pronounced in males",
+  labs( subtitle = "Suicides are most likely to occur around midnight all weekdays,\n and during weekends.This pattern is more pronounced in males",
       caption="" ,x = "Time", y="") +
   labs(fill = "# Male Suicides") +
   theme_ami +
@@ -742,14 +751,13 @@ heatmaps<-egg::ggarrange(heat_map_suicide_male, heat_map_suicide_female, ncol=1)
 ```
 
 
-## 2.5 Chihuahua and Yucatan States Comparison
+## 2.6 Chihuahua and Yucatan States Comparison
 
-To analyze in specific some of the characteristics of the states with the larger suicides rates,  treemaps were created to show simmilarities and contrasts between the national characteristics of suicide population, and those of Yucatan and Chihuahua states. 
+To analyze some of the characteristics of the states with the larger suicides rates, treemaps were created to show simmilarities and contrasts between the national characteristics of suicide population, and those of Yucatan and Chihuahua states. 
 
-Regarding age and sex structure of suicide population (Figure 6A), both Chihuahua and Yucatan show a simmilar structure as the national one. However, in Chihuahua we observe more suicides in male older cohorts as compared to the country and Yucatan.
-Figure 6B shows the breakdown by occupation. The first  thing to note is the size of unemployed people share, which is the largest. Interestingly, Chihuahua, a state which economy relies heavily on the manufacturing industry (and the share of the employed population in this sector is among the top in the country), shows a smaller share of this category as compared to the national level. In the state of Yucatan, the share of administrative workers is larger than at the national level and Chihuahua. The same situation occurs for the Artisan/Auxiliary workers category in the state of Chihuahua. 
+Regarding age and sex structure of suicide population (Figure 6A), both Chihuahua and Yucatan show a similar structure as the national one. However, in Chihuahua we observe more suicides in male older cohorts as compared to the whole country and Yucatan.
 
-We also analyze the schooling degree of suicide population as a proxy of socioeconomic status. To avoid a bias of young suicide population that did not complete highschool or college, we subset the data to population older than 25 years old. When we take a look at the school levels of suicide population, we observe at the national level that a majority of these population has at most complete elementary school. The share of suicide population in Chihuahua who completed high-school and elementary school is much larger than the national level. Finally, we also observe that suicide population in Chihuahua has a largest share of married and cohabiting-unmarried population than the rest of the country and Yucatan and, in general, that Chihuahua's suicide victims are more different from the national profile than Yucatan's are.
+
 
 ```{r yucatan and chihuahua, warning=FALSE, message=FALSE, error=FALSE, results='hide' }
 
@@ -825,7 +833,6 @@ treemap_occupation<-ggplot(subset(occup_suicides_yuc, occupation!="NA"), aes(are
        caption = "Source: INEGI") +
 theme_amiplots
 
-treemap_occupation
 
 palette_school_treemap<-c("#4C64E8", "#597EC0", "#669999", "#84A36C", "#B29C3A", "#E19509")
 treemap_school<-ggplot(subset(educ_suicides_yuc, school_category!="NA"), aes(area = n, fill=school_category, label = school_category)) +
@@ -839,7 +846,6 @@ treemap_school<-ggplot(subset(educ_suicides_yuc, school_category!="NA"), aes(are
        caption = "Source: INEGI") +
 theme_amiplots
 
-treemap_school
 
 palette_marital_treemap<-c("#4C64E8", "#5C85B7", "#6DA786", "#A79E47", "#E19509")
 treemap_marital<-ggplot(subset(marital_suicides_yuc, marital_status!="NA"), aes(area = n, fill=marital_status, label = marital_status)) +
@@ -854,7 +860,20 @@ treemap_marital<-ggplot(subset(marital_suicides_yuc, marital_status!="NA"), aes(
 
 theme_amiplots
 
-treemap_marital
+
 ```
 
+Figure 6B shows the breakdown by occupation. The first  thing to note is the size of unemployed people share, which is the largest in the three cases. Interestingly, Chihuahua, a state which economy relies heavily on the manufacturing industry (and the share of the employed population in this sector is among the top in the country), shows a smaller share of this category as compared to the national level, which suggests that the distribution of occupations among suicide cases does not necessarily follow the distribution of occupations in a geographic unit, and some employment regional characteristics maybe important to characterize this population. In the state of Yucatan, the share of administrative workers is larger than the national level and Chihuahua. The same situation occurs for the Artisan/Auxiliary workers category in the state of Chihuahua. 
+
+```{r, echo=FALSE}
+treemap_occupation
+```
+
+
+We also analyze the schooling degree of suicide population as a proxy of economic status. To avoid a bias of young suicide population that did not complete highschool or college, we subset the data to the population older than 25 years old. When we take a look at the school levels of suicide population, we observe at the national level that a majority has, at most, only complete elementary school, and only a minority of the suicide population completed a professional degree (licenciatura), which corresponds to the upper-right orange rectangle. As in the case of homicides, suicides affect relatively more young, male, unschooled population.
+
+
+```{r treemap school, echo=FALSE, message=FALSE, warning=FALSE }
+treemap_school
+```
 
